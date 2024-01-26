@@ -22,6 +22,7 @@ AAuraEnemy::AAuraEnemy()
     if (IsValid(AbilitySystemComponent))
     {
         AbilitySystemComponent->SetIsReplicated(true);
+        AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
     }
     
     AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
