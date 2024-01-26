@@ -3,9 +3,11 @@ DerivedDataCache
 Intermediate
 Saved
 Build
-
+        
+.vsconfig
 .vscode
 .vs
+.idea
 *.VC.db
 *.opensdf
 *.opendb
@@ -14,3 +16,4 @@ Build
 *.suo
 *.xcodeproj
 *.xcworkspace
+Aura.uproject.DotSettings.user
