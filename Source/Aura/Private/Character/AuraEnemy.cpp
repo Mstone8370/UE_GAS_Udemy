@@ -28,6 +28,16 @@ AAuraEnemy::AAuraEnemy()
     AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 }
 
+void AAuraEnemy::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (IsValid(AbilitySystemComponent))
+    {
+        AbilitySystemComponent->InitAbilityActorInfo(this, this);
+    }
+}
+
 void AAuraEnemy::HighlightActor()
 {
     if (IsValid(GetMesh()))
