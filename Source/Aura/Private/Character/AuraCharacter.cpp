@@ -5,7 +5,9 @@
 
 #include "AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
+#include "UI/HUD/AuraHUD.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -22,14 +24,16 @@ AAuraCharacter::AAuraCharacter()
 void AAuraCharacter::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
-    
+
+    // Init ability actor info for the Server
     InitAbilityActorInfo();
 }
 
 void AAuraCharacter::OnRep_PlayerState()
 {
     Super::OnRep_PlayerState();
-    
+
+    // Init ability actor info for the Client
     InitAbilityActorInfo();
 }
 
@@ -40,4 +44,13 @@ void AAuraCharacter::InitAbilityActorInfo()
     AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
     AbilitySystemComponent->InitAbilityActorInfo(AuraPlayerState, this);
     AttributeSet = AuraPlayerState->GetAttributeSet();
+
+    // 멀티플레이어인 경우 다른 플레이어의 Controller는 캐스팅에 실패함.
+    if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
+    {
+        if (AAuraHUD* AuraHUD = Cast<AAuraHUD>(AuraPlayerController->GetHUD()))
+        {
+            AuraHUD->InitOverlay(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
+        }
+    }
 }

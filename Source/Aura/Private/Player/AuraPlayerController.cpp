@@ -18,8 +18,10 @@ void AAuraPlayerController::BeginPlay()
     check(AuraContext);
 
     UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-    check(Subsystem);
-    Subsystem->AddMappingContext(AuraContext, 0);
+    if (IsValid(Subsystem))  // 멀티플레이어에서는 valid 하지 않을 수도 있음. 예를 들면 다른 플레이어인 경우.
+    {
+        Subsystem->AddMappingContext(AuraContext, 0);
+    }
 
     SetShowMouseCursor(true);
     DefaultMouseCursor = EMouseCursor::Default;
