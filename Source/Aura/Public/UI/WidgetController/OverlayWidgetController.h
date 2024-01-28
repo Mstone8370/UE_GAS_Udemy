@@ -24,4 +24,9 @@ public:
     FOnMaxHealthChangedSignature OnMaxHealthChanged;
     
     virtual void BroadcastInitialValue() override;
+    virtual void BindCallbacksToDependencies() override;
+
+protected:
+    void HealthChanged(const FOnAttributeChangeData& Data) const;
+    void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
 };
