@@ -65,8 +65,10 @@ protected:
 	EEffectRemovalPolicy InfiniteEffectRemovalPolicy = EEffectRemovalPolicy::RemoveOnEndOverlap;
 
 	/**
+	 * TODO:
 	 * 맵의 Key를 포인터로 하면 런타임중에 포인터가 유효하지 않은 경우가 발생할 수 있으므로
-	 * Handle 구조체를 Key로 하고, 대응하는 컴포넌트를 Value에 넣음.
+	 * Handle 구조체를 Key로 하고, 대응하는 컴포넌트를 Value에 넣은듯.
+	 * 그런 경우라 하더라도 맵을 순환해서 value만 읽는데에는 영향을 주는건 아닐듯 하지만 확인해봐야 함.
 	 */
 	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveEffectHandles;
 };

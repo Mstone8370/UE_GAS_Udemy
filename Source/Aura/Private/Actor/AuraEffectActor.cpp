@@ -37,7 +37,7 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 			*EffectSpecHandle.Data.Get()
 		);
 
-	const bool bIsInfinite = EffectSpecHandle.Data.Get()->Def->DurationPolicy == EGameplayEffectDurationType::Infinite;
+	const bool bIsInfinite = EffectSpecHandle.Data->Def->DurationPolicy == EGameplayEffectDurationType::Infinite;
 	if (bIsInfinite && InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
 	{
 		ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
@@ -83,7 +83,7 @@ void AAuraEffectActor::EndOverlap(AActor* TargetActor)
 			return;
 		}
 
-		// 이 액터가 하나의 컴포넌트에 여러개의 이펙트를 적용한 경우를 고려한듯.
+		// 이 액터가 하나의 컴포넌트에 여러개의 이펙트를 적용한 경우를 고려한듯. 더 나은 방법이 있을듯.
 		TArray<FActiveGameplayEffectHandle> HandleToRemove;
 		for (const TTuple<FActiveGameplayEffectHandle, UAbilitySystemComponent*>& HandlePair : ActiveEffectHandles)
 		{
