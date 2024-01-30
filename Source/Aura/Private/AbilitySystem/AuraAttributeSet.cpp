@@ -29,6 +29,7 @@ void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
 }
 
+// Attribute가 변경되기 전에 변경할 값을 클램핑 하는 함수. NewValue는 Current Value가 될 값.
 void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
     // Epic은 이 함수에서는 값을 clamp 하는데에만 사용하기를 권장한다는듯.
@@ -43,11 +44,21 @@ void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
     }
 }
 
+// GE에 의해 호출되는 함수. 여기에서 Base Value 값을 변경해도 됨. GE는 Base Value를 기반으로 계산하는듯?
 void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
     FEffectProperties Props;
     SetEffectProperties(Data, Props);
-    
+
+    if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Health Current: %f, Base: %f"), Health.GetCurrentValue(), Health.GetBaseValue());
+        // SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));
+    }
+    if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+    {
+        SetMana(FMath::Clamp(GetMana(), 0, GetMaxMana()));
+    }
 }
 
 void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
