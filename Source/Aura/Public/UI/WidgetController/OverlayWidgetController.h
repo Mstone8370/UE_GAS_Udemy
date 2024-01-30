@@ -8,11 +8,6 @@
 
 class UAuraUserWidget;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
-
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
 {
@@ -31,6 +26,12 @@ struct FUIWidgetRow : public FTableRowBase
     UTexture2D* Image = nullptr;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, const FUIWidgetRow, Row);
+
 /**
  * 
  */
@@ -40,14 +41,16 @@ class AURA_API UOverlayWidgetController : public UAuraWidgetController
 	GENERATED_BODY()
 
 public:
-    UPROPERTY(BlueprintAssignable, Category = "GAS|Attribute")
+    UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
     FOnHealthChangedSignature OnHealthChanged;
-    UPROPERTY(BlueprintAssignable, Category = "GAS|Attribute")
+    UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
     FOnMaxHealthChangedSignature OnMaxHealthChanged;
-    UPROPERTY(BlueprintAssignable, Category = "GAS|Attribute")
+    UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
     FOnManaChangedSignature OnManaChanged;
-    UPROPERTY(BlueprintAssignable, Category = "GAS|Attribute")
+    UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
     FOnMaxManaChangedSignature OnMaxManaChanged;
+    UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
+    FMessageWidgetRowSignature MessageWidgetRow;
     
     virtual void BroadcastInitialValue() override;
     virtual void BindCallbacksToDependencies() override;
@@ -62,15 +65,15 @@ protected:
     TObjectPtr<UDataTable> MessageWidgetDataTable;
 
     template<typename T>
-    T* GetDataTableRowByTag(const UDataTable* DataTable, const FGameplayTag& Tag);
+    T* GetDataTableRowByTag(const UDataTable* DataTable, const FGameplayTag& Tag) const;
 };
 
 template <typename T>
-T* UOverlayWidgetController::GetDataTableRowByTag(const UDataTable* DataTable, const FGameplayTag& Tag)
+T* UOverlayWidgetController::GetDataTableRowByTag(const UDataTable* DataTable, const FGameplayTag& Tag) const
 {
     if (!IsValid(DataTable))
     {
         return nullptr;
     }
-    return DataTable->FindRow<T>(Tag.ToString(), TEXT(""));
+    return DataTable->FindRow<T>(Tag.GetTagName(), TEXT(""));
 }
