@@ -20,7 +20,8 @@ public:
 
 protected:
     virtual void BeginPlay() override;
-
+    virtual void InitAbilityActorInfo() override;
+    
 public:
     //~ Begin Enemy Interface
     virtual void HighlightActor() override;
