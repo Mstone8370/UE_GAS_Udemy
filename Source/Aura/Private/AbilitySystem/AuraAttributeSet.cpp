@@ -9,9 +9,7 @@
 UAuraAttributeSet::UAuraAttributeSet()
 {
     InitHealth(10.f);
-    InitMaxHealth(100.f);
     InitMana(10.f);
-    InitMaxMana(50.f);
 }
 
 // Replicated인 변수들을 등록하기 위해 필수적인 함수

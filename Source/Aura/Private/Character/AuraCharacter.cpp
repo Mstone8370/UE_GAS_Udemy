@@ -57,5 +57,5 @@ void AAuraCharacter::InitAbilityActorInfo()
     }
 
     // 모든 어트리뷰트는 레플리케이트 되므로 아래 함수는 서버에서만 호출해도 됨.
-    InitializePrimaryAttributes();
+    InitializeDefaultAttributes();
 }
