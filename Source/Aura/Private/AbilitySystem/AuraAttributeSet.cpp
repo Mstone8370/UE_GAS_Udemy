@@ -3,11 +3,18 @@
 
 #include "AbilitySystem/AuraAttributeSet.h"
 
+#include "AuraGameplayTags.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
+    const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
+    
+    TagsToAttributes.Add(GameplayTags.Attributes_Primary_Strength, GetStrengthAttribute);
+    TagsToAttributes.Add(GameplayTags.Attributes_Primary_Intelligence, GetIntelligenceAttribute);
+    TagsToAttributes.Add(GameplayTags.Attributes_Primary_Resilience, GetResilienceAttribute);
+    TagsToAttributes.Add(GameplayTags.Attributes_Primary_Vigor, GetVigorAttribute);
 }
 
 // Replicated인 변수들을 등록하기 위해 필수적인 함수
