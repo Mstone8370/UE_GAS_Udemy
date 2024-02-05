@@ -51,6 +51,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
     Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
         [this](const FGameplayTagContainer& AssetTags)
         {
+            // 해당 게임플레이 태그는 Native가 아니기 때문에 c++에서는 요청을 해서 받아와야함.
             const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
             
             for (const FGameplayTag& Tag : AssetTags)
