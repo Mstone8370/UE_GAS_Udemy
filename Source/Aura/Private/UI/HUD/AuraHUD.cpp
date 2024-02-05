@@ -6,18 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "UI/WidgetController/AuraWidgetController.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
+#include "UI/WidgetController/AttributeMenuWidgetController.h"
 #include "UI/Widgets/AuraUserWidget.h"
-
-UOverlayWidgetController* AAuraHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
-{
-    if (!IsValid(OverlayWidgetController))
-    {
-        OverlayWidgetController = NewObject<UOverlayWidgetController>(this, OverlayWidgetControllerClass);
-        OverlayWidgetController->SetWidgetControllerParams(WCParams);
-        OverlayWidgetController->BindCallbacksToDependencies();
-    }
-    return OverlayWidgetController;
-}
 
 void AAuraHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
 {
@@ -34,4 +24,26 @@ void AAuraHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySyst
     WidgetController->BroadcastInitialValue();
 
     Widget->AddToViewport();
+}
+
+UOverlayWidgetController* AAuraHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
+{
+    if (!IsValid(OverlayWidgetController))
+    {
+        OverlayWidgetController = NewObject<UOverlayWidgetController>(this, OverlayWidgetControllerClass);
+        OverlayWidgetController->SetWidgetControllerParams(WCParams);
+        OverlayWidgetController->BindCallbacksToDependencies();
+    }
+    return OverlayWidgetController;
+}
+
+UAttributeMenuWidgetController* AAuraHUD::GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams)
+{
+    if (!IsValid(AttributeMenuWidgetController))
+    {
+        AttributeMenuWidgetController = NewObject<UAttributeMenuWidgetController>(this, AttributeMenuWidgetControllerClass);
+        AttributeMenuWidgetController->SetWidgetControllerParams(WCParams);
+        AttributeMenuWidgetController->BindCallbacksToDependencies();
+    }
+    return AttributeMenuWidgetController;
 }
