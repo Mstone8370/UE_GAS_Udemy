@@ -46,6 +46,8 @@ private:
     UPROPERTY()
     TObjectPtr<UAuraAbilitySystemComponent> AuraAbilitySystemComponent;
     
+    FHitResult CursorHit;
+    
     IEnemyInterface* LastActor;
     IEnemyInterface* ThisActor;
 

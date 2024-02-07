@@ -61,7 +61,6 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
     Super::PlayerTick(DeltaTime);
 
     CursorTrace();
-
     AutoRun();
 }
 
@@ -107,7 +106,6 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void AAuraPlayerController::CursorTrace()
 {
-    FHitResult CursorHit;
     GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, CursorHit);
     if (!CursorHit.bBlockingHit || !IsValid(CursorHit.GetActor()))
     {
@@ -116,20 +114,7 @@ void AAuraPlayerController::CursorTrace()
 
     LastActor = ThisActor;
     ThisActor = Cast<IEnemyInterface>(CursorHit.GetActor());
-
-    /**
-     * Line trace from cursor. There are several scenaios:
-     *  A. LastActor is null && ThisActor is null
-     *      - Do nothing.
-     *  B. LastActor is null && ThisActor is valid
-     *      - Highlight ThisActor
-     *  C. LastActor is valid && ThisActor is null
-     *      - UnHighlight LastActor
-     *  D. Both Actors are valid, but LastActor != ThisActor
-     *      - Unhighlight LastActor, and Highlight ThisActor
-     *  E. Both Actors are valid, and are the same actor
-     *      - Do nothing
-     */
+    
     if (LastActor != ThisActor)
     {
         if (LastActor)
@@ -174,7 +159,6 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
                 for (const FVector& PointLoc : NavPath->PathPoints)
                 {
                     Spline->AddSplineWorldPoint(PointLoc);
-                    DrawDebugSphere(GetWorld(), PointLoc, 8.f, 8, FColor::Green, false, 5.f);
                 }
                 CachedDestination = NavPath->PathPoints.Last();
                 bAutoRunning = true;
@@ -199,10 +183,9 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
     
     FollowTime += GetWorld()->GetDeltaSeconds();
 
-    FHitResult Hit;
-    if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+    if (CursorHit.bBlockingHit)
     {
-        CachedDestination = Hit.ImpactPoint;
+        CachedDestination = CursorHit.ImpactPoint;
     }
 
     if (APawn* ControlledPawn = GetPawn())
