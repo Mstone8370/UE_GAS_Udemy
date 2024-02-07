@@ -61,6 +61,32 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
     Super::PlayerTick(DeltaTime);
 
     CursorTrace();
+
+    AutoRun();
+}
+
+void AAuraPlayerController::AutoRun()
+{
+    if (!bAutoRunning)
+    {
+        return;
+    }
+    
+    if (APawn* ControlledPawn = GetPawn())
+    {
+        // 주어진 위치에서 스플라인중의 가장 가까운 한 점의 위치를 리턴함. 스플라인의 포인트가 아니라 선을 구성하는 하나의 점이라는 것을 주의.
+        const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
+        // 주어진 위치에서 스플라인중의 가장 가까운 한 점의 방향을 리턴함. 스플라인의 포인트가 아니라 선을 구성하는 하나의 점이라는 것을 주의.
+        const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
+        // 이런 방식으로는 방향의 기준이 Pawn이 아니라 스플라인이므로 Pawn이 스플라인 위에 있지 않다면 목표 위치로 향하지 않음.
+        ControlledPawn->AddMovementInput(Direction);
+
+        const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
+        if (DistanceToDestination <= AutoRunAcceptanceRadius)
+        {
+            bAutoRunning = false;
+        }
+    }
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -143,13 +169,16 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
         if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
         {
             Spline->ClearSplinePoints();
-            for (const FVector& PointLoc : NavPath->PathPoints)
+            if (!NavPath->PathPoints.IsEmpty())
             {
-                //Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
-                Spline->AddSplineWorldPoint(PointLoc);
-                DrawDebugSphere(GetWorld(), PointLoc, 8.f, 8, FColor::Green, false, 5.f);
+                for (const FVector& PointLoc : NavPath->PathPoints)
+                {
+                    Spline->AddSplineWorldPoint(PointLoc);
+                    DrawDebugSphere(GetWorld(), PointLoc, 8.f, 8, FColor::Green, false, 5.f);
+                }
+                CachedDestination = NavPath->PathPoints.Last();
+                bAutoRunning = true;
             }
-            bAutoRunning = true;
         }
     }
     

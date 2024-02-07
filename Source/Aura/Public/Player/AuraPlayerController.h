@@ -63,6 +63,7 @@ private:
     float AutoRunAcceptanceRadius = 50.f;
     // End Click To Move variables
     
+    void AutoRun();
     void Move(const FInputActionValue& InputActionValue);
 
     void CursorTrace();
@@ -70,6 +71,7 @@ private:
     void AbilityInputTagPressed(FGameplayTag InputTag);
     void AbilityInputTagReleased(FGameplayTag InputTag);
     void AbilityInputTagHeld(FGameplayTag InputTag);
+
 
     UAuraAbilitySystemComponent* GetASC();
 };
