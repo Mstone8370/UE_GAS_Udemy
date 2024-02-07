@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "AuraPlayerController.generated.h"
 
+class USplineComponent;
 class UAuraInputConfig;
 class UInputMappingContext;
 class UInputAction;
@@ -47,6 +48,20 @@ private:
     
     IEnemyInterface* LastActor;
     IEnemyInterface* ThisActor;
+
+    // Begin Click To Move variables
+    float FollowTime = 0.f;
+    float ShortPressThreshold = 0.5f;
+    bool bAutoRunning = false;
+    bool bTargeting = false; // is cursor targeting something
+    FVector CachedDestination = FVector::ZeroVector;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<USplineComponent> Spline;
+    
+    UPROPERTY(EditDefaultsOnly)
+    float AutoRunAcceptanceRadius = 50.f;
+    // End Click To Move variables
     
     void Move(const FInputActionValue& InputActionValue);
 
