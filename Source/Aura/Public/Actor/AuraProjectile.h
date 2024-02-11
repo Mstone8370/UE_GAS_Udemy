@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffectTypes.h"
 #include "GameFramework/Actor.h"
 #include "AuraProjectile.generated.h"
 
@@ -46,5 +47,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	float LifeSpan = 15.f;
+
+public:
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
+	FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
 };
