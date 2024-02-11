@@ -39,6 +39,8 @@ private:
 
     UPROPERTY(EditAnywhere, Category = "Input")
     TObjectPtr<UInputAction> MoveAction;
+    UPROPERTY(EditAnywhere, Category = "Input")
+    TObjectPtr<UInputAction> ShiftAction;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UAuraInputConfig> InputConfig;
@@ -67,6 +69,10 @@ private:
     
     void AutoRun();
     void Move(const FInputActionValue& InputActionValue);
+
+    FORCEINLINE void ShiftPressed() { bShiftKeyDown = true; }
+    FORCEINLINE void ShiftReleased() { bShiftKeyDown = false; }
+    bool bShiftKeyDown = false;
 
     void CursorTrace();
 

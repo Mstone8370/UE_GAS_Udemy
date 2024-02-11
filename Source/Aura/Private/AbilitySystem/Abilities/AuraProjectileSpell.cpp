@@ -13,7 +13,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UAuraProjectileSpell::SpawnProjectile()
+void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
 {
     const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); // 서버인 경우 true 리턴.
     if (!bIsServer)
@@ -25,13 +25,12 @@ void UAuraProjectileSpell::SpawnProjectile()
     if (CombatInterface && ProjectileClass)
     {
         const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+        FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+        Rotation.Pitch = 0.f;
         
         FTransform SpawnTransform;
         SpawnTransform.SetLocation(SocketLocation);
-        // TODO: Set the Projectile Rotation.
-        const FRotator AvatarRotation = GetAvatarActorFromActorInfo()->GetActorRotation();
-        const FRotator SpawnRotation(0.f, AvatarRotation.Yaw, 0.f);
-        SpawnTransform.SetRotation(SpawnRotation.Quaternion());
+        SpawnTransform.SetRotation(Rotation.Quaternion());
         
         AAuraProjectile* Projectile =  GetWorld()->SpawnActorDeferred<AAuraProjectile>(
                 ProjectileClass,
