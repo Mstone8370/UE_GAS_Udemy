@@ -41,6 +41,13 @@ public:
     FOnAttributeChangedSignature OnHealthChanged;
     UPROPERTY(BlueprintAssignable)
     FOnAttributeChangedSignature OnMaxHealthChanged;
+    
+    void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+    UPROPERTY(BlueprintReadOnly, Category = "Combat")
+    bool bHitReacting;
+    UPROPERTY(BlueprintReadOnly, Category = "Combat")
+    float BaseWalkSpeed;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
