@@ -169,4 +169,13 @@ public:
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
 	UFUNCTION()
 	void OnRep_Mana(const FGameplayAttributeData& OldMana) const;
+
+	/**
+	 * Meta Attributes
+	 */
+	// 이 값을 기반으로 서버에서 데미지를 계산함. 계산된 결과는 서버에서 Health 어트리뷰트를 변경하고, Health는 레플리케이트 되니 IncomingDamage는 레플리케이트할 필요가 없음.
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage)
 };
