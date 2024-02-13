@@ -15,6 +15,7 @@
 AAuraEnemy::AAuraEnemy()
     : bHitReacting(false)
     , BaseWalkSpeed(250.f)
+    , LifeSpan(5.f)
     , Level(1)
     , CharacterClass(ECharacterClass::Warrior)
 {
@@ -118,6 +119,13 @@ void AAuraEnemy::UnHighlightActor()
 int32 AAuraEnemy::GetPlayerLevel()
 {
     return Level;
+}
+
+void AAuraEnemy::Die()
+{
+    SetLifeSpan(LifeSpan);
+    
+    Super::Die();
 }
 
 void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)

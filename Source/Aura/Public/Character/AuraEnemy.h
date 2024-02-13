@@ -34,6 +34,7 @@ public:
 
     //~ Begin Combat Interface
     virtual int32 GetPlayerLevel() override;
+    virtual void Die() override;
     //~ End Combat Interface
 
     // For Health Bar
@@ -48,6 +49,8 @@ public:
     bool bHitReacting;
     UPROPERTY(BlueprintReadOnly, Category = "Combat")
     float BaseWalkSpeed;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+    float LifeSpan;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
