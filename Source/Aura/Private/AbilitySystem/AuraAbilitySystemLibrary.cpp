@@ -44,17 +44,11 @@ UAttributeMenuWidgetController* UAuraAbilitySystemLibrary::GetAttributeMenuWidge
 
 void UAuraAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* ASC)
 {
-    const AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-    if (!AuraGameMode)
-    {
-        return;
-    }
-
     const AActor* AvatarActor = ASC->GetAvatarActor();
     FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
     ContextHandle.AddSourceObject(AvatarActor);
 
-    const UCharacterClassInfo* CharacterClassInfo = AuraGameMode->CharacterClassInfo;
+    const UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
     
     const FCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
     const FGameplayEffectSpecHandle PrimaryAttributeSpecHandle = ASC->MakeOutgoingSpec(ClassDefaultInfo.PrimaryAttributes, Level, ContextHandle);
@@ -69,16 +63,21 @@ void UAuraAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 
 void UAuraAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC)
 {
-    const AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-    if (!AuraGameMode)
-    {
-        return;
-    }
-
-    const UCharacterClassInfo* CharacterClassInfo = AuraGameMode->CharacterClassInfo;
+    const UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
     for (const TSubclassOf<UGameplayAbility>& AbilityClass : CharacterClassInfo->CommonAbilities)
     {
         FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
         ASC->GiveAbility(AbilitySpec);
     }
+}
+
+UCharacterClassInfo* UAuraAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
+{
+    const AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+    if (!AuraGameMode)
+    {
+        return nullptr;
+    }
+
+    return AuraGameMode->CharacterClassInfo;
 }
