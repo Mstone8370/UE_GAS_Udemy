@@ -122,6 +122,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
     }
     
     // Set Final Damage
+    // 다양한 어트리뷰트에 접근해서 값을 조정할 수 있음.
     const FGameplayModifierEvaluatedData EvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
     OutExecutionOutput.AddOutputModifier(EvaluatedData);
 }
