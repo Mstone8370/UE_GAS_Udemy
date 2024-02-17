@@ -4,6 +4,7 @@
 #include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 
 #include "AbilitySystemComponent.h"
+#include "AuraAbilityTypes.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/AuraAttributeSet.h"
@@ -58,6 +59,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
     ICombatInterface* TargetCombatInterface = Cast<ICombatInterface>(TargetAvatar);
 
     const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+    FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 
     const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
     const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
@@ -74,6 +76,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
     TargetBlockChance = FMath::Max<float>(TargetBlockChance, 0.f);
     // If Block, halve the damage.
     const bool bBlocked = FMath::FRandRange(0.f, 100.f) <= TargetBlockChance;
+    UAuraAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
     if (!FMath::IsNearlyZero(TargetBlockChance) && bBlocked)
     {
         Damage = FMath::RoundHalfToZero(Damage / 2);
@@ -116,6 +119,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
     // Critical Hit Resistance reduces Critical Hit Chance by a certain percentage
     const float EffectiveCriticalHitChance = SourceCriticalHitChance - TargetCriticalHitResistance * CriticalHitResistanceCoefficient;
     const bool bCriticalHit = FMath::FRandRange(0.f, 100.f) <= EffectiveCriticalHitChance;
+    UAuraAbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCriticalHit);
     if (!FMath::IsNearlyZero(SourceCriticalHitChance) && bCriticalHit)
     {
         Damage = Damage * 2 + SourceCriticalHitDamage;
