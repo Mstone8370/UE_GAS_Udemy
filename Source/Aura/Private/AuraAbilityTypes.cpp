@@ -86,6 +86,7 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
     {
         bHasWorldOrigin = false;
     }
+    /*
     if (RepBits & (1 << 7))
     {
         Ar << bIsBlockedHit;
@@ -96,8 +97,9 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
         Ar << bIsCriticalHit;
         // bIsCriticalHit = true;
     }
-    // bIsBlockedHit = RepBits & (1 << 7);
-    // bIsCriticalHit = RepBits & (1 << 7);
+    */
+    bIsBlockedHit = RepBits & (1 << 7);
+    bIsCriticalHit = RepBits & (1 << 8);
 
     if (Ar.IsLoading())
     {

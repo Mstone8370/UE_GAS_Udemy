@@ -3,6 +3,7 @@
 
 #include "AuraAssetManager.h"
 
+#include "AbilitySystemGlobals.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 
@@ -20,4 +21,6 @@ void UAuraAssetManager::StartInitialLoading()
     FAuraGameplayTags::InitializeNativeGameplayTags();
 
     StaticInitTagsToCaptureDefMap(); // ExecCalc_Damage
+
+    UAbilitySystemGlobals::Get().InitGlobalData();
 }
