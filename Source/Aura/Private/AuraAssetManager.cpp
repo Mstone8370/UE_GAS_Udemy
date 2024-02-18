@@ -4,6 +4,7 @@
 #include "AuraAssetManager.h"
 
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 
 UAuraAssetManager& UAuraAssetManager::Get()
 {
@@ -17,4 +18,6 @@ void UAuraAssetManager::StartInitialLoading()
     Super::StartInitialLoading();
 
     FAuraGameplayTags::InitializeNativeGameplayTags();
+
+    StaticInitTagsToCaptureDefMap(); // ExecCalc_Damage
 }
