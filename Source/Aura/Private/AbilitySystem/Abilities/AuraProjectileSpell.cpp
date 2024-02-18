@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AuraGameplayTags.h"
 #include "Actor/AuraProjectile.h"
 #include "Interaction/CombatInterface.h"
 
@@ -43,6 +44,7 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
             );
         
         const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+
         // Effect Context 설정
         FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
         EffectContextHandle.SetAbility(this);
@@ -54,17 +56,19 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
         HitResult.Location = ProjectileTargetLocation;
         EffectContextHandle.AddHitResult(HitResult);
         // Effect Context 설정 끝
+
+        // Damage 설정
         const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
-       
-        const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
-        // const float ScaleDamage = Damage.GetValueAtLevel(GetAbilityLevel());
-        const float ScaleDamage = Damage.GetValueAtLevel(10);
-        
-        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Damage, ScaleDamage);
-        // or
-        // SpecHandle.Data->SetSetByCallerMagnitude(GameplayTags.Damage, *DAMAGE_AMOUNT*);
-        
+        for (auto& Pair : DamageTypes)
+        {
+            const float ScaleDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
+            
+            UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Pair.Key, ScaleDamage);
+            // or
+            // SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, ScaleDamage);
+        }
         Projectile->DamageEffectSpecHandle = SpecHandle;
+        // Damage 설정 끝
         
         Projectile->FinishSpawning(SpawnTransform);
     }
