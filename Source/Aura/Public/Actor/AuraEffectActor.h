@@ -45,7 +45,9 @@ protected:
 	void EndOverlap(AActor* TargetActor);
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Applied Effects")
-	bool bDestroyOnEffectRemoval;
+	bool bDestroyOnEffectApplication;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Applied Effects")
+	bool bApplyEffectOnEnemy;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Applied Effects")
 	float ActorLevel;
 	

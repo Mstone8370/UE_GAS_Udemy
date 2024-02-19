@@ -22,17 +22,17 @@ AAuraEnemy::AAuraEnemy()
     , Level(1)
     , CharacterClass(ECharacterClass::Warrior)
 {
-    if (IsValid(GetMesh()))
+    if (GetMesh())
     {
         GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
     }
-    if (IsValid(Weapon))
+    if (Weapon)
     {
         Weapon->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
     }
     
     AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");
-    if (IsValid(AbilitySystemComponent))
+    if (AbilitySystemComponent)
     {
         AbilitySystemComponent->SetIsReplicated(true);
         AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
@@ -42,6 +42,12 @@ AAuraEnemy::AAuraEnemy()
 
     HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
     HealthBar->SetupAttachment(GetRootComponent());
+
+    bUseControllerRotationPitch = false;
+    bUseControllerRotationRoll = false;
+    bUseControllerRotationYaw = false;
+    GetCharacterMovement()->bUseControllerDesiredRotation = true;
+    GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void AAuraEnemy::BeginPlay()
