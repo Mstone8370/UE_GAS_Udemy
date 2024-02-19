@@ -5,16 +5,17 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BTFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+
+UBTService_FindNearestPlayer::UBTService_FindNearestPlayer()
+{
+    NodeName = FString("FindNearestPlayer");
+}
 
 void UBTService_FindNearestPlayer::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
     Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
-
-    GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *OwnerComp.GetAIOwner()->GetName());
-    GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, *OwnerComp.GetOwner()->GetName());
-
-    OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKey.SelectedKeyName);
 
     const APawn* OwningPawn = OwnerComp.GetAIOwner()->GetPawn();
 
@@ -23,5 +24,21 @@ void UBTService_FindNearestPlayer::TickNode(UBehaviorTreeComponent& OwnerComp, u
     TArray<AActor*> ActorsWithTag;
     UGameplayStatics::GetAllActorsWithTag(OwningPawn, TargetTag, ActorsWithTag);
 
-    
+    float ClosestDistance = TNumericLimits<float>::Max();
+    AActor* ClosestActor = nullptr;
+    for (AActor* Actor : ActorsWithTag)
+    {
+        if (IsValid(Actor) && IsValid(OwningPawn))
+        {
+            const float Distance = OwningPawn->GetDistanceTo(Actor);
+            if (Distance < ClosestDistance)
+            {
+                ClosestDistance = Distance;
+                ClosestActor = Actor;
+            }
+        }
+    }
+
+    OwnerComp.GetBlackboardComponent()->SetValueAsObject(FName("TargetToFollow"), ClosestActor);
+    OwnerComp.GetBlackboardComponent()->SetValueAsFloat(FName("DistanceToTarget"), ClosestDistance);
 }
