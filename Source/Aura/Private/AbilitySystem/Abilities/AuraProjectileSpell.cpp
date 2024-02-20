@@ -24,10 +24,10 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
         return;
     }
 
-    ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo());
-    if (CombatInterface && ProjectileClass)
+    if (ProjectileClass)
     {
-        const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+        // Execute_GetCombatSocketLocation: GetCombatSocketLocation 함수를 BlueprintNative로 만들어서 이 함수를 사용해야하는듯.
+        const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
         FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
         Rotation.Pitch = 0.f;
         

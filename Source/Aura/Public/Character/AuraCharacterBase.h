@@ -26,7 +26,7 @@ protected:
 
 public:
 	//~ Begin Combat Interface
-	virtual FVector GetCombatSocketLocation() override;
+	virtual FVector GetCombatSocketLocation_Implementation() override;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	virtual void Die() override;
 	//~ End Combat Interface
