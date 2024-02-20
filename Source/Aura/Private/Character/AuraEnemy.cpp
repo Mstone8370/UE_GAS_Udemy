@@ -132,6 +132,16 @@ void AAuraEnemy::UnHighlightActor()
     }
 }
 
+void AAuraEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+    CombatTarget = InCombatTarget;
+}
+
+AActor* AAuraEnemy::GetCombatTarget_Implementation() const
+{
+    return CombatTarget;
+}
+
 int32 AAuraEnemy::GetPlayerLevel()
 {
     return Level;
