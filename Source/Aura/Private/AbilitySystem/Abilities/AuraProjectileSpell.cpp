@@ -52,6 +52,7 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
         FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
         EffectContextHandle.SetAbility(this);
         EffectContextHandle.AddSourceObject(Projectile);
+        EffectContextHandle.AddInstigator(GetAvatarActorFromActorInfo()->GetInstigator(), GetAvatarActorFromActorInfo());
         TArray<TWeakObjectPtr<AActor>> Actors;
         Actors.Add(Projectile);
         EffectContextHandle.AddActors(Actors);
