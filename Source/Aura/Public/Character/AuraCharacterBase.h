@@ -12,6 +12,7 @@ class UGameplayAbility;
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
+class UNiagaraSystem;
 
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -32,6 +33,7 @@ public:
     virtual bool IsDead_Implementation() const override;
     virtual AActor* GetAvatar_Implementation() override;
     virtual TArray<FTaggedMontage> GetAttackMontage_Implementation() override;
+    virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
     //~ End Combat Interface
 
     // NetMulticast: 서버와 클라이언트에서 모두 실행되고, 모든 클라이언트에 레플리케이트 됨. _Implementation 함수 작성해야함.
@@ -52,6 +54,9 @@ protected:
     FName RightHandSocketName;
     UPROPERTY(EditAnywhere, Category = "Combat")
     FName LeftHandSocketName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+    TObjectPtr<UNiagaraSystem> BloodEffect;
     
     UPROPERTY()
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
