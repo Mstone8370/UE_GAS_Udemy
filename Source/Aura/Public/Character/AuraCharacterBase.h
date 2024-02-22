@@ -34,6 +34,7 @@ public:
     virtual AActor* GetAvatar_Implementation() override;
     virtual TArray<FTaggedMontage> GetAttackMontage_Implementation() override;
     virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
+    virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag MontageTag) override;
     //~ End Combat Interface
 
     // NetMulticast: 서버와 클라이언트에서 모두 실행되고, 모든 클라이언트에 레플리케이트 됨. _Implementation 함수 작성해야함.
