@@ -57,6 +57,7 @@ void AAuraProjectile::Destroyed()
 			LoopingSoundComponent->DestroyComponent();
 			LoopingSoundComponent = nullptr;
 		}
+		bHit = true;
 	}
 
 	if (IsValid(LoopingSoundComponent))
@@ -102,6 +103,7 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 			LoopingSoundComponent->DestroyComponent();
 			LoopingSoundComponent = nullptr;
 		}
+		bHit = true;
 	}
 	
 	if (HasAuthority())
