@@ -54,7 +54,16 @@ void AAuraProjectile::Destroyed()
 		if (IsValid(LoopingSoundComponent))
 		{
 			LoopingSoundComponent->Stop();
+			LoopingSoundComponent->DestroyComponent();
+			LoopingSoundComponent = nullptr;
 		}
+	}
+
+	if (IsValid(LoopingSoundComponent))
+	{
+		LoopingSoundComponent->Stop();
+		LoopingSoundComponent->DestroyComponent();
+		LoopingSoundComponent = nullptr;
 	}
 	
 	Super::Destroyed();
@@ -90,6 +99,8 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		if (IsValid(LoopingSoundComponent))
 		{
 			LoopingSoundComponent->Stop();
+			LoopingSoundComponent->DestroyComponent();
+			LoopingSoundComponent = nullptr;
 		}
 	}
 	
