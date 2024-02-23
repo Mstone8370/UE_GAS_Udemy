@@ -35,6 +35,8 @@ public:
     virtual TArray<FTaggedMontage> GetAttackMontage_Implementation() override;
     virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
     virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag MontageTag) override;
+    virtual int32 GetMinionCount_Implementation() override;
+    virtual void IncrementMinionCount_Implementation(int32 Amount) override;
     //~ End Combat Interface
 
     // NetMulticast: 서버와 클라이언트에서 모두 실행되고, 모든 클라이언트에 레플리케이트 됨. _Implementation 함수 작성해야함.
@@ -62,6 +64,8 @@ protected:
     TObjectPtr<UNiagaraSystem> BloodEffect;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<USoundBase> DeathSound;
+
+    int32 MinionCount;
     
     UPROPERTY()
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;

@@ -16,7 +16,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag SocketTag)
+void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag SocketTag, bool bOverridePitch, float PitchOverride)
 {
     const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); // 서버인 경우 true 리턴.
     if (!bIsServer)
@@ -33,6 +33,10 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
         );
         FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
         Rotation.Pitch = 0.f;
+        if (bOverridePitch)
+        {
+            Rotation.Pitch = PitchOverride;
+        }
         
         FTransform SpawnTransform;
         SpawnTransform.SetLocation(SocketLocation);
