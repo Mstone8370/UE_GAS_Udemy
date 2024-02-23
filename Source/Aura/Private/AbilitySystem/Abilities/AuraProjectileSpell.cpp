@@ -16,7 +16,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
+void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag SocketTag)
 {
     const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); // 서버인 경우 true 리턴.
     if (!bIsServer)
@@ -29,7 +29,7 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
         // Execute_GetCombatSocketLocation: GetCombatSocketLocation 함수를 BlueprintNative로 만들어서 이 함수를 사용해야하는듯.
         const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(
             GetAvatarActorFromActorInfo(),
-            FAuraGameplayTags::Get().CombatSocket_Weapon
+            SocketTag
         );
         FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
         Rotation.Pitch = 0.f;
