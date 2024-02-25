@@ -51,19 +51,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
     if (UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))
     {
-        if (AuraASC->bStartupAbilitiesGiven)
-        {
-            // 일반적인 경우.
-            // 서버에서 먼저 startup 어빌리티를 캐릭터에 추가했음.
-            // startup 어빌리티가 추가된 다음에 호출되어야 할 함수를 바로 호출.
-            OnInitializeStartupAbilities(AuraASC);
-        }
-        else
-        {
-            // 클라이언트에서 먼저 여기에 도착한 경우.
-            // 서버에서 캐릭터에 startup 어빌리티를 추가하기를 기다림.
-            AuraASC->AbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
-        }
+        AuraASC->AbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
 
         AuraASC->EffectAssetTags.AddLambda(
             [this](const FGameplayTagContainer& AssetTags)
@@ -101,6 +89,7 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UAuraAbilitySystemCo
     BroadcastDelegate.BindLambda(
         [this](const FGameplayAbilitySpec& AbilitySpec)
         {
+            check(AbilityInfo);
             FGameplayTag AbilityTag = UAuraAbilitySystemComponent::GetAbilityTagFromSpec(AbilitySpec);
             FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
             Info.InputTag = UAuraAbilitySystemComponent::GetInputTagFromSpec(AbilitySpec);

@@ -14,6 +14,8 @@ void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 
 void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
 {
+    // on Server
+
     for (const TSubclassOf<UGameplayAbility>& AbilityClass : StartupAbilities)
     {
         FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
@@ -83,7 +85,7 @@ FGameplayTag UAuraAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayA
     {
         for (FGameplayTag Tag : AbilitySpec.Ability->AbilityTags)
         {
-            if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Ability"))))
+            if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
             {
                 return Tag;
             }
@@ -103,6 +105,19 @@ FGameplayTag UAuraAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbi
         }
     }
     return FGameplayTag();
+}
+
+void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+    Super::OnRep_ActivateAbilities();
+
+    // on Client
+
+    if (!bStartupAbilitiesGiven)
+    {
+        bStartupAbilitiesGiven = true;
+        AbilitiesGivenDelegate.Broadcast(this);
+    }
 }
 
 void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
