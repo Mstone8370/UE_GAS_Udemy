@@ -5,6 +5,7 @@
 
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
+#include "Aura/AuraLogChannels.h"
 
 void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -60,6 +61,48 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
             AbilitySpecInputReleased(AbilitySpec); // Ability가 Input Released임을 알려주기기만 하는 목적?
         }
     }
+}
+
+void UAuraAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
+{
+    // 아래 for 루프가 도는 동안 어빌리티에 변경사항이 적용되지 않도록 이 scpoe 동안에는 lock해둠.
+    FScopedAbilityListLock ActiveScopeLock(*this);
+    
+    for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+    {
+        if (!Delegate.ExecuteIfBound(AbilitySpec))
+        {
+            UE_LOG(LogAura, Error, TEXT("Failed to execute delegate in %hs"), __FUNCTION__);
+        }
+    }
+}
+
+FGameplayTag UAuraAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+    if (AbilitySpec.Ability)
+    {
+        for (FGameplayTag Tag : AbilitySpec.Ability->AbilityTags)
+        {
+            if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Ability"))))
+            {
+                return Tag;
+            }
+        }
+    }
+
+    return FGameplayTag();
+}
+
+FGameplayTag UAuraAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+    for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
+    {
+        if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+        {
+            return Tag;
+        }
+    }
+    return FGameplayTag();
 }
 
 void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
