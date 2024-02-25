@@ -58,12 +58,19 @@ void AAuraCharacter::InitAbilityActorInfo()
     // 멀티플레이어인 경우 다른 플레이어의 Controller는 캐스팅에 실패함.
     if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
     {
+        // on Server and Client
+
         if (AAuraHUD* AuraHUD = Cast<AAuraHUD>(AuraPlayerController->GetHUD()))
         {
+            // on Client
+
             AuraHUD->InitOverlay(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
         }
     }
 
-    // 모든 어트리뷰트는 레플리케이트 되므로 아래 함수는 서버에서만 호출해도 됨.
-    InitializeDefaultAttributes();
+    if (HasAuthority())
+    {
+        // 모든 어트리뷰트는 레플리케이트 되므로 아래 함수는 서버에서만 호출해도 됨.
+        InitializeDefaultAttributes();
+    }
 }
