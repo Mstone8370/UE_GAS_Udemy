@@ -20,7 +20,6 @@ AAuraEnemy::AAuraEnemy()
     , BaseWalkSpeed(250.f)
     , LifeSpan(5.f)
     , Level(1)
-    , CharacterClass(ECharacterClass::Warrior)
 {
     if (GetMesh())
     {

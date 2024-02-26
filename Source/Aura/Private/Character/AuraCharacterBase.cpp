@@ -13,6 +13,7 @@
 
 AAuraCharacterBase::AAuraCharacterBase()
     : bDead(false)
+    , CharacterClass(ECharacterClass::Warrior)
     , MinionCount(0)
 {
     PrimaryActorTick.bCanEverTick = false;
@@ -108,6 +109,11 @@ int32 AAuraCharacterBase::GetMinionCount_Implementation()
 void AAuraCharacterBase::IncrementMinionCount_Implementation(int32 Amount)
 {
     MinionCount += Amount;
+}
+
+ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation()
+{
+    return CharacterClass;
 }
 
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
