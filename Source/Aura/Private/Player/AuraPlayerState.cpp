@@ -9,6 +9,7 @@
 
 AAuraPlayerState::AAuraPlayerState()
     : Level(1)
+    , XP(0)
 {
     AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");
     if (IsValid(AbilitySystemComponent))
@@ -27,13 +28,42 @@ void AAuraPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AAuraPlayerState, Level);
+    DOREPLIFETIME(AAuraPlayerState, XP);
 }
 
 void AAuraPlayerState::OnRep_Level(int32 OldLevel)
 {
 }
 
+void AAuraPlayerState::OnRep_XP(int32 OldXP)
+{
+}
+
 UAbilitySystemComponent* AAuraPlayerState::GetAbilitySystemComponent() const
 {
     return AbilitySystemComponent;
+}
+
+void AAuraPlayerState::AddToLevel(int32 InLevel)
+{
+    Level += InLevel;
+    OnLevelChangedDelegate.Broadcast(Level);
+}
+
+void AAuraPlayerState::SetLevel(int32 InLevel)
+{
+    Level = InLevel;
+    OnLevelChangedDelegate.Broadcast(Level);
+}
+
+void AAuraPlayerState::AddToXP(int32 InXP)
+{
+    XP += InXP;
+    OnXPChangedDelegate.Broadcast(XP);
+}
+
+void AAuraPlayerState::SetXP(int32 InXP)
+{
+    XP = InXP;
+    OnXPChangedDelegate.Broadcast(XP);
 }
