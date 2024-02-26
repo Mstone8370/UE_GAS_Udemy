@@ -190,7 +190,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Vital Attributes", ReplicatedUsing = OnRep_Mana)
 	FGameplayAttributeData Mana;
 	
- 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Health)
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Health)
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Mana)
 
 	UFUNCTION()
@@ -204,6 +204,9 @@ public:
 	// 이 값을 기반으로 서버에서 데미지를 계산함. 계산된 결과는 서버에서 Health 어트리뷰트를 변경하고, Health는 레플리케이트 되니 IncomingDamage는 레플리케이트할 필요가 없음.
 	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
 	FGameplayAttributeData IncomingDamage;
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingXP;
 
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage)
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingXP)
 };

@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/AuraPlayerController.h"
+#include "Aura/AuraLogChannels.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
@@ -137,6 +138,12 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
             const bool bCritical = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
             ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCritical);
         }
+    }
+    if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+    {
+        const float LocalIncomingXP = GetIncomingXP();
+        UE_LOG(LogAura, Warning, TEXT("Incoming XP: %f"), LocalIncomingXP);
+        SetIncomingXP(0.f);
     }
 }
 
