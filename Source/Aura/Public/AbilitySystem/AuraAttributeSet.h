@@ -71,6 +71,8 @@ private:
 
 	void ShowFloatingText(const FEffectProperties& Props, const float Damage, const bool bBlockedHit, const bool bCriticalHit) const;
 	
+	void SendXPEvent(const FEffectProperties& Props);
+
 public:
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
 	
