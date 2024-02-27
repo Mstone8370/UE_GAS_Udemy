@@ -23,7 +23,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
     AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
     AuraPlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
-
+    
     const UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetHealthAttribute()).AddLambda(

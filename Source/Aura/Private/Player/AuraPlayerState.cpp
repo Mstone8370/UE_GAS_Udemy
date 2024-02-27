@@ -37,6 +37,7 @@ void AAuraPlayerState::OnRep_Level(int32 OldLevel)
 
 void AAuraPlayerState::OnRep_XP(int32 OldXP)
 {
+    OnXPChangedDelegate.Broadcast(XP);
 }
 
 UAbilitySystemComponent* AAuraPlayerState::GetAbilitySystemComponent() const
