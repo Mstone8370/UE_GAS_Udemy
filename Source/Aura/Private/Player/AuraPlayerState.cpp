@@ -33,6 +33,7 @@ void AAuraPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void AAuraPlayerState::OnRep_Level(int32 OldLevel)
 {
+    OnLevelChangedDelegate.Broadcast(Level);
 }
 
 void AAuraPlayerState::OnRep_XP(int32 OldXP)
