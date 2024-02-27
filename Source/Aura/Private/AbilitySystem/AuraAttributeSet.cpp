@@ -98,6 +98,20 @@ void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
     }
 }
 
+void UAuraAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+    if (Attribute == GetMaxHealthAttribute() && bTopOffHealth)
+    {
+        SetHealth(GetMaxHealth());
+        bTopOffHealth = false;
+    }
+    if (Attribute == GetMaxManaAttribute() && bTopOffMana)
+    {
+        SetMana(GetMaxMana());
+        bTopOffMana = false;
+    }
+}
+
 // GE에 의해 호출되는 함수. 여기에서 Base Value 값을 변경해도 됨. GE는 Base Value를 기반으로 계산하는듯?
 void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
@@ -164,8 +178,9 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
                 IPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
                 IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
                 
-                SetHealth(GetMaxHealth());
-                SetMana(GetMaxMana());
+                // MMC에서 최대 체력과 최대 마나를 늘린 다음에 채워야 하므로 여기에선 일단 상태 표시만 함.
+                bTopOffHealth = true;
+                bTopOffMana = true;
 
                 IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
             }
