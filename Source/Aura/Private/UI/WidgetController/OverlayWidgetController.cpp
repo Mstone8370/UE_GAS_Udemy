@@ -17,12 +17,21 @@ void UOverlayWidgetController::BroadcastInitialValue()
     OnMaxHealthChanged.Broadcast(AuraAttributeSet->GetMaxHealth());
     OnManaChanged.Broadcast(AuraAttributeSet->GetMana());
     OnMaxManaChanged.Broadcast(AuraAttributeSet->GetMaxMana());
+    
+    AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+    OnPlayerLevelChanged.Broadcast(AuraPlayerState->GetPlayerLevel());
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
     AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
     AuraPlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
+    AuraPlayerState->OnLevelChangedDelegate.AddLambda(
+        [this](int32 NewLevel)
+        {
+            OnPlayerLevelChanged.Broadcast(NewLevel);
+        }
+    );
     
     const UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 
