@@ -20,16 +20,22 @@ class AURA_API UAttributeMenuWidgetController : public UAuraWidgetController
 	GENERATED_BODY()
 
 public:
-    virtual void BindCallbacksToDependencies() override;
-    virtual void BroadcastInitialValue() override;
+	virtual void BindCallbacksToDependencies() override;
+	virtual void BroadcastInitialValue() override;
 
-    UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-    FAttributeInfoSignature AttributeInfoDelegate;
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
+	FAttributeInfoSignature AttributeInfoDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|AttributePoint")
+	FOnPlayerStatChangedSignature AttributePointsChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|SpellPoint")
+	FOnPlayerStatChangedSignature SpellPointsChangedDelegate;
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    TObjectPtr<UAttributeInfo> AttributeInfo;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAttributeInfo> AttributeInfo;
 
 private:
-    void BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const;
+	void BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const;
 };

@@ -19,7 +19,7 @@ void UOverlayWidgetController::BroadcastInitialValue()
     OnMaxManaChanged.Broadcast(AuraAttributeSet->GetMaxMana());
     
     AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
-    OnPlayerLevelChanged.Broadcast(AuraPlayerState->GetPlayerLevel());
+    OnPlayerLevelChangedDelegate.Broadcast(AuraPlayerState->GetPlayerLevel());
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
@@ -29,7 +29,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
     AuraPlayerState->OnLevelChangedDelegate.AddLambda(
         [this](int32 NewLevel)
         {
-            OnPlayerLevelChanged.Broadcast(NewLevel);
+            OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
         }
     );
     
