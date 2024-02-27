@@ -41,7 +41,7 @@ public:
 	void AddToPlayerLevel(int32 InPlayerLevel);
 
 	UFUNCTION(BlueprintNativeEvent)
-	void AddToAttributePoints(int32 InAttribuetPorints);
+	void AddToAttributePoints(int32 InAttributePoints);
 
 	UFUNCTION(BlueprintNativeEvent)
 	void AddToSpellPoints(int32 InSpellPoints);
