@@ -8,10 +8,12 @@
 
 struct FWidgetControllerParams;
 class UAbilitySystemComponent;
-class UAttributeMenuWidgetController;
 class UAttributeSet;
 class UAuraUserWidget;
 class UOverlayWidgetController;
+class UAttributeMenuWidgetController;
+class USpellMenuWidgetController;
+
 /**
  * 
  */
@@ -20,37 +22,49 @@ class AURA_API AAuraHUD : public AHUD
 {
 	GENERATED_BODY()
 
-    /**
-     * Overlay Widget Controller
-     */
 public:
-    void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
-    UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
-    
-private:
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<UAuraUserWidget> OverlayWidgetClass;
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
-    
-    UPROPERTY()
-    TObjectPtr<UAuraUserWidget> OverlayWidget;
-    UPROPERTY()
-    TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
-
-
-    /**
-     * Attribute Menu Widget Controller
-     */
+	/**
+	 * Overlay Widget Controller
+	 */
 public:
-    UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams);
-    
+	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
+	
 private:
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<UAttributeMenuWidgetController> AttributeMenuWidgetControllerClass;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UAuraUserWidget> OverlayWidgetClass;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
+	
+	UPROPERTY()
+	TObjectPtr<UAuraUserWidget> OverlayWidget;
+	UPROPERTY()
+	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
 
-    UPROPERTY()
-    TObjectPtr<UAttributeMenuWidgetController> AttributeMenuWidgetController;
-    
+	/**
+	 * Attribute Menu Widget Controller
+	 */
+public:
+	UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams);
+	
+private:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UAttributeMenuWidgetController> AttributeMenuWidgetControllerClass;
+
+	UPROPERTY()
+	TObjectPtr<UAttributeMenuWidgetController> AttributeMenuWidgetController;
+
+	/**
+	 * Spell Menu Widget Controller
+	 */
+public:
+	USpellMenuWidgetController* GetSpellMenuWidgetController(const FWidgetControllerParams& WCParams);
+
+private:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<USpellMenuWidgetController> SpellMenuWidgetControllerClass;
+
+	UPROPERTY()
+	TObjectPtr<USpellMenuWidgetController> SpellMenuWidgetController;
 };
