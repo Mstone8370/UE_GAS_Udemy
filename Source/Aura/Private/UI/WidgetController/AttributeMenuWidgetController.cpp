@@ -8,6 +8,18 @@
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "Player/AuraPlayerState.h"
 
+void UAttributeMenuWidgetController::BroadcastInitialValue()
+{
+    check(AttributeInfo);
+
+    for (const auto& Pair : GetAuraAS()->TagsToAttributes)
+    {
+        BroadcastAttributeInfo(Pair.Key, Pair.Value());
+    }
+
+    AttributePointsChangedDelegate.Broadcast(GetAuraPS()->GetAttributePoints());
+}
+
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
     check(AttributeInfo);
@@ -28,25 +40,6 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
             AttributePointsChangedDelegate.Broadcast(NewLevel);
         }
     );
-    GetAuraPS()->OnSpellPointsChangedDelegate.AddLambda(
-        [this](int32 NewLevel)
-        {
-            SpellPointsChangedDelegate.Broadcast(NewLevel);
-        }
-    );
-}
-
-void UAttributeMenuWidgetController::BroadcastInitialValue()
-{
-    check(AttributeInfo);
-
-    for (const auto& Pair: GetAuraAS()->TagsToAttributes)
-    {
-        BroadcastAttributeInfo(Pair.Key, Pair.Value());
-    }
-
-    AttributePointsChangedDelegate.Broadcast(GetAuraPS()->GetAttributePoints());
-    SpellPointsChangedDelegate.Broadcast(GetAuraPS()->GetSpellPoints());
 }
 
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag,

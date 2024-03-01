@@ -21,17 +21,14 @@ class AURA_API UAttributeMenuWidgetController : public UAuraWidgetController
 	GENERATED_BODY()
 
 public:
-	virtual void BindCallbacksToDependencies() override;
 	virtual void BroadcastInitialValue() override;
+	virtual void BindCallbacksToDependencies() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
 	FAttributeInfoSignature AttributeInfoDelegate;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|AttributePoint")
 	FOnPlayerStatChangedSignature AttributePointsChangedDelegate;
-
-	UPROPERTY(BlueprintAssignable, Category = "GAS|SpellPoint")
-	FOnPlayerStatChangedSignature SpellPointsChangedDelegate;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
