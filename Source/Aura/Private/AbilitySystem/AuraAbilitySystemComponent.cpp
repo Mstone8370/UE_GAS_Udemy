@@ -184,6 +184,8 @@ void UAuraAbilitySystemComponent::UpdateAbilityStatus(int32 Level)
             FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Info.Ability, 1);
             AbilitySpec.DynamicAbilityTags.AddTag(FAuraGameplayTags::Get().Abilities_Status_Eligible);
             GiveAbility(AbilitySpec);
+            MarkAbilitySpecDirty(AbilitySpec); // 변경점을 클라이언트에게 바로 알려주게 함.
+            ClientUpdateAbilityState(Info.AbilityTag, FAuraGameplayTags::Get().Abilities_Status_Eligible);
         }
     }
 }
@@ -201,6 +203,20 @@ void UAuraAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FG
     }
 }
 
+void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
+                                                const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
+{
+    FGameplayTagContainer TagContainer;
+    EffectSpec.GetAllAssetTags(TagContainer);
+    
+    EffectAssetTags.Broadcast(TagContainer);
+}
+
+void UAuraAbilitySystemComponent::ClientUpdateAbilityState_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+{
+    AbilityStatusChanged.Broadcast(AbilityTag, StatusTag);
+}
+
 void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
 {
     Super::OnRep_ActivateAbilities();
@@ -212,13 +228,4 @@ void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
         bStartupAbilitiesGiven = true;
         AbilitiesGivenDelegate.Broadcast();
     }
-}
-
-void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
-                                                const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
-{
-    FGameplayTagContainer TagContainer;
-    EffectSpec.GetAllAssetTags(TagContainer);
-    
-    EffectAssetTags.Broadcast(TagContainer);
 }

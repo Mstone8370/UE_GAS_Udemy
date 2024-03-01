@@ -9,6 +9,7 @@
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /*AssetTags*/);
 DECLARE_MULTICAST_DELEGATE(FAbilityGiven);
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FAbilityStatusChanged, const FGameplayTag& /*AbilityTag*/, const FGameplayTag& /*StatusTag*/);
 
 /**
  * 
@@ -21,6 +22,7 @@ class AURA_API UAuraAbilitySystemComponent : public UAbilitySystemComponent
 public:
     FEffectAssetTags EffectAssetTags;
     FAbilityGiven AbilitiesGivenDelegate;
+    FAbilityStatusChanged AbilityStatusChanged;
 
     bool bStartupAbilitiesGiven = false;
     
@@ -42,14 +44,17 @@ public:
 
     void UpgradeAttribute(const FGameplayTag& AttributeTag);
 
+    void UpdateAbilityStatus(int32 Level);
+
     UFUNCTION(Server, Reliable)
     void ServerUpgradeAttribute(const FGameplayTag& AttributeTag);
-
-    void UpdateAbilityStatus(int32 Level);
 
 protected:
     UFUNCTION(Client, Reliable)
     void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
+
+    UFUNCTION(Client, Reliable)
+    void ClientUpdateAbilityState(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag);
 
     /**
      * OverlayWidget에 Aura캐릭터의 사용 가능한 스킬을 표시하기위한 목적.
