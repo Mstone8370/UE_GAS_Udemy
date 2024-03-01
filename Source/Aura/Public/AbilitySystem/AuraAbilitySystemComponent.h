@@ -38,10 +38,14 @@ public:
     static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
     static FGameplayTag GetStatusFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 
+    const FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
+
     void UpgradeAttribute(const FGameplayTag& AttributeTag);
 
     UFUNCTION(Server, Reliable)
     void ServerUpgradeAttribute(const FGameplayTag& AttributeTag);
+
+    void UpdateAbilityStatus(int32 Level);
 
 protected:
     UFUNCTION(Client, Reliable)
