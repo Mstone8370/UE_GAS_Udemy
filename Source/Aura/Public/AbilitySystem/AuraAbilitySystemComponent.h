@@ -11,6 +11,8 @@ DECLARE_MULTICAST_DELEGATE(FAbilityGiven);
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag& /*AbilityTag*/, const FGameplayTag& /*StatusTag*/, int32 /*AbilityLevel*/);
 
+class UAbilityInfo;
+
 /**
  * 
  */
@@ -51,6 +53,8 @@ public:
 
     UFUNCTION(Server, Reliable)
     void ServerSpendSpellPoint(const FGameplayTag& AbilityTag);
+
+    bool GetDecriptionsByAbilityTag(const UAbilityInfo* AbilityInfo, const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription);
 
 protected:
     UFUNCTION(Client, Reliable)

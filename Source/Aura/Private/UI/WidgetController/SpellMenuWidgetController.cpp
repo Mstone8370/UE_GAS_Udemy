@@ -42,3 +42,8 @@ void USpellMenuWidgetController::SpendPointButtonPressed(const FGameplayTag& Abi
 {
     GetAuraASC()->ServerSpendSpellPoint(AbilityTag);
 }
+
+bool USpellMenuWidgetController::GetSpellDescription(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription)
+{
+    return GetAuraASC()->GetDecriptionsByAbilityTag(AbilityInfo, AbilityTag, OutDescription, OutNextLevelDescription);
+}

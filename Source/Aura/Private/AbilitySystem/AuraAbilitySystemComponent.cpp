@@ -242,6 +242,31 @@ void UAuraAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGa
     }
 }
 
+bool UAuraAbilitySystemComponent::GetDecriptionsByAbilityTag(const UAbilityInfo* AbilityInfo, const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription)
+{
+    if (const FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
+    {
+        if (UAuraGameplayAbility* AuraAbility = Cast<UAuraGameplayAbility>(AbilitySpec->Ability))
+        {
+            OutDescription = AuraAbility->GetDescription(AbilitySpec->Level);
+            OutNextLevelDescription = AuraAbility->GetLextLevelDescription(AbilitySpec->Level + 1);
+
+            return true;
+        }
+    }
+
+    OutDescription = FString();
+    OutNextLevelDescription = FString();
+    
+    // if (const UAbilityInfo* AbilityInfo = UAuraAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor()))
+    if (AbilityInfo)
+    {
+        OutDescription = UAuraGameplayAbility::GetLockedDescription(AbilityInfo->FindAbilityInfoForTag(AbilityTag).LevelRequirement);
+    }
+
+    return false;
+}
+
 void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
                                                 const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {

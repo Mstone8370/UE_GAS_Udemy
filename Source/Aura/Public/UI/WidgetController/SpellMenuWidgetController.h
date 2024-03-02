@@ -23,4 +23,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SpendPointButtonPressed(const FGameplayTag& AbilityTag);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetSpellDescription(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription);
 };
