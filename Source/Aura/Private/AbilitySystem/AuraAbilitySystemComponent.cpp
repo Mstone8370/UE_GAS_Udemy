@@ -135,12 +135,12 @@ FGameplayTag UAuraAbilitySystemComponent::GetStatusFromSpec(const FGameplayAbili
     return FGameplayTag();
 }
 
-const FGameplayAbilitySpec* UAuraAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
+FGameplayAbilitySpec* UAuraAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
 {
     // 아래 for 루프가 도는 동안 어빌리티에 변경사항이 적용되지 않도록 이 scpoe 동안에는 lock해둠.
     FScopedAbilityListLock ActiveScopeLock(*this);
 
-    for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+    for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
     {
         for (const FGameplayTag& Tag : AbilitySpec.Ability->AbilityTags)
         {
@@ -185,7 +185,7 @@ void UAuraAbilitySystemComponent::UpdateAbilityStatus(int32 Level)
             AbilitySpec.DynamicAbilityTags.AddTag(FAuraGameplayTags::Get().Abilities_Status_Eligible);
             GiveAbility(AbilitySpec);
             MarkAbilitySpecDirty(AbilitySpec); // 변경점을 클라이언트에게 바로 알려주게 함.
-            ClientUpdateAbilityState(Info.AbilityTag, FAuraGameplayTags::Get().Abilities_Status_Eligible);
+            ClientUpdateAbilityState(Info.AbilityTag, FAuraGameplayTags::Get().Abilities_Status_Eligible, 1);
         }
     }
 }
@@ -203,6 +203,45 @@ void UAuraAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FG
     }
 }
 
+void UAuraAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGameplayTag& AbilityTag)
+{
+    if (FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
+    {
+        const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
+        FGameplayTag Status = GetStatusFromSpec(*AbilitySpec);
+        if (Status.MatchesTagExact(GameplayTags.Abilities_Status_Locked))
+        {
+            // Invalid Request
+            return;
+        }
+
+        FGameplayTag NewStatus = FGameplayTag();
+        if (Status.MatchesTagExact(GameplayTags.Abilities_Status_Eligible))
+        {
+            // Unlock Ability
+            NewStatus = GameplayTags.Abilities_Status_Unlocked;
+            AbilitySpec->DynamicAbilityTags.RemoveTag(GameplayTags.Abilities_Status_Eligible);
+            AbilitySpec->DynamicAbilityTags.AddTag(NewStatus);
+            AbilitySpec->Level = 1;
+        }
+        else
+        {
+            // Upgrade Ability
+            NewStatus = Status;
+            ++AbilitySpec->Level;
+        }
+        // Update Ability State
+        ClientUpdateAbilityState(AbilityTag, NewStatus, AbilitySpec->Level);
+        MarkAbilitySpecDirty(*AbilitySpec);
+
+        // Consume Spell Point
+        if (GetAvatarActor()->Implements<UPlayerInterface>())
+        {
+            IPlayerInterface::Execute_AddToSpellPoints(GetAvatarActor(), -1);
+        }
+    }
+}
+
 void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
                                                 const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
@@ -212,9 +251,9 @@ void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySys
     EffectAssetTags.Broadcast(TagContainer);
 }
 
-void UAuraAbilitySystemComponent::ClientUpdateAbilityState_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+void UAuraAbilitySystemComponent::ClientUpdateAbilityState_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel)
 {
-    AbilityStatusChanged.Broadcast(AbilityTag, StatusTag);
+    AbilityStatusChanged.Broadcast(AbilityTag, StatusTag, AbilityLevel);
 }
 
 void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()

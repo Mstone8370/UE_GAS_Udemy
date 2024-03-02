@@ -35,6 +35,9 @@ struct FAuraAbilityInfo
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 LevelRequirement = 0;
 
+	UPROPERTY(BlueprintReadOnly)
+	int32 Level = 1;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayAbility> Ability;
 };

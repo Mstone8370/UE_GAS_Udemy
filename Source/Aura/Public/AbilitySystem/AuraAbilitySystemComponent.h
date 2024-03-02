@@ -9,7 +9,7 @@
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /*AssetTags*/);
 DECLARE_MULTICAST_DELEGATE(FAbilityGiven);
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FAbilityStatusChanged, const FGameplayTag& /*AbilityTag*/, const FGameplayTag& /*StatusTag*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag& /*AbilityTag*/, const FGameplayTag& /*StatusTag*/, int32 /*AbilityLevel*/);
 
 /**
  * 
@@ -40,7 +40,7 @@ public:
     static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
     static FGameplayTag GetStatusFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 
-    const FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
+    FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
 
     void UpgradeAttribute(const FGameplayTag& AttributeTag);
 
@@ -49,12 +49,15 @@ public:
     UFUNCTION(Server, Reliable)
     void ServerUpgradeAttribute(const FGameplayTag& AttributeTag);
 
+    UFUNCTION(Server, Reliable)
+    void ServerSpendSpellPoint(const FGameplayTag& AbilityTag);
+
 protected:
     UFUNCTION(Client, Reliable)
     void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
 
     UFUNCTION(Client, Reliable)
-    void ClientUpdateAbilityState(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag);
+    void ClientUpdateAbilityState(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel);
 
     /**
      * OverlayWidget에 Aura캐릭터의 사용 가능한 스킬을 표시하기위한 목적.

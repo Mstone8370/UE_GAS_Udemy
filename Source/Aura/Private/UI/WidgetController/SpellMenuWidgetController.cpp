@@ -18,12 +18,13 @@ void USpellMenuWidgetController::BroadcastInitialValue()
 void USpellMenuWidgetController::BindCallbacksToDependencies()
 {
     GetAuraASC()->AbilityStatusChanged.AddLambda(
-        [this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+        [this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel)
         {
             if (AbilityInfo)
             {
                 FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
                 Info.StatusTag = StatusTag;
+                Info.Level = AbilityLevel;
                 AbilityInfoDelegate.Broadcast(Info);
             }
         }
@@ -35,4 +36,9 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
             SpellPointsChangedDelegate.Broadcast(NewLevel);
         }
     );
+}
+
+void USpellMenuWidgetController::SpendPointButtonPressed(const FGameplayTag& AbilityTag)
+{
+    GetAuraASC()->ServerSpendSpellPoint(AbilityTag);
 }
