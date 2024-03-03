@@ -47,3 +47,16 @@ bool USpellMenuWidgetController::GetSpellDescription(const FGameplayTag& Ability
 {
     return GetAuraASC()->GetDecriptionsByAbilityTag(AbilityInfo, AbilityTag, OutDescription, OutNextLevelDescription);
 }
+
+void USpellMenuWidgetController::EquipButtonPressed(const FGameplayTag& AbilityTag)
+{
+    const FGameplayTag AbilityType = AbilityInfo->FindAbilityInfoForTag(AbilityTag).AbilityType;
+    
+    WaitForEquipDelegate.Broadcast(AbilityType);
+    bWaitingForEquipSelection = true;
+}
+
+void USpellMenuWidgetController::StopWaitForEquipSelection()
+{
+    bWaitingForEquipSelection = false;
+}

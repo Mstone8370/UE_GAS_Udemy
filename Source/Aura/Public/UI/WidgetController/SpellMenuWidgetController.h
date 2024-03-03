@@ -6,6 +6,8 @@
 #include "UI/WidgetController/AuraWidgetController.h"
 #include "SpellMenuWidgetController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWaitForEquipSelectionSignature, const FGameplayTag&, AbilityType);
+
 /**
  * 
  */
@@ -21,9 +23,20 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|SpellPoint")
 	FOnPlayerStatChangedSignature SpellPointsChangedDelegate;
 
+	UPROPERTY(BlueprintAssignable)
+	FWaitForEquipSelectionSignature WaitForEquipDelegate;
+
 	UFUNCTION(BlueprintCallable)
 	void SpendPointButtonPressed(const FGameplayTag& AbilityTag);
 
 	UFUNCTION(BlueprintCallable)
 	bool GetSpellDescription(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription);
+
+	UFUNCTION(BlueprintCallable)
+	void EquipButtonPressed(const FGameplayTag& AbilityTag);
+
+	UFUNCTION(BlueprintCallable)
+	void StopWaitForEquipSelection();
+
+	bool bWaitingForEquipSelection = false;
 };
