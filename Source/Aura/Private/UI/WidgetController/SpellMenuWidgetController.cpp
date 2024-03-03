@@ -91,8 +91,6 @@ void USpellMenuWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTa
 {
     bWaitingForEquipSelection = false;
 
-    const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
-
     // 이미 equip한 어빌리티를 다른 슬롯에 옮기는 경우, 이전의 슬롯을 비우기 위한 AbilityInfo
     FAuraAbilityInfo LastSlotInfo;
     LastSlotInfo.InputTag = PreviousSlot;

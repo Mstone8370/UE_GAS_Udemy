@@ -80,6 +80,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
             }
         }
     );
+
+    GetAuraASC()->AbilityEquipped.AddUObject(this, &UOverlayWidgetController::OnAbilityEquipped);
 }
 
 void UOverlayWidgetController::OnXPChanged(int32 NewXP)
@@ -102,4 +104,18 @@ void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 
         OnXPPrecentChangedDelegate.Broadcast(XPBarPercent);
     }
+}
+
+void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const
+{
+    // 이미 equip한 어빌리티를 다른 슬롯에 옮기는 경우, 이전의 슬롯을 비우기 위한 AbilityInfo
+    FAuraAbilityInfo LastSlotInfo;
+    LastSlotInfo.InputTag = PreviousSlot;
+    AbilityInfoDelegate.Broadcast(LastSlotInfo);
+
+    // 새로 equip한 어빌리티의 슬롯에 사용되는 AbilityInfo
+    FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+    Info.StatusTag = Status;
+    Info.InputTag = Slot;
+    AbilityInfoDelegate.Broadcast(Info);
 }
