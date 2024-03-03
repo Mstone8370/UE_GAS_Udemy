@@ -38,5 +38,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopWaitForEquipSelection();
 
+	UFUNCTION(BlueprintCallable)
+	void SpellRowGlobePressed(const FGameplayTag& AbilityTag, const FGameplayTag& SlotTag, const FGameplayTag& AbilityType);
+
+	void OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot);
+
 	bool bWaitingForEquipSelection = false;
+
+private:
+	FGameplayTag SelectedSlot;
 };

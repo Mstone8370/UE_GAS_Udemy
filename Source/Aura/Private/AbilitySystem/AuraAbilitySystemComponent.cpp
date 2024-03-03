@@ -54,7 +54,9 @@ void UAuraAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 
     for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
     {
-        if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+        bool bIsInputTagAbility = AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag);
+        bool bIsEquippedAbility = AbilitySpec.DynamicAbilityTags.HasTagExact(FAuraGameplayTags::Get().Abilities_Status_Equipped);
+        if (bIsInputTagAbility && bIsEquippedAbility)
         {
             AbilitySpecInputPressed(AbilitySpec); // Ability가 Input Pressed임을 알려주기기만 하는 목적?
             if (!AbilitySpec.IsActive())
@@ -135,6 +137,24 @@ FGameplayTag UAuraAbilitySystemComponent::GetStatusFromSpec(const FGameplayAbili
     return FGameplayTag();
 }
 
+FGameplayTag UAuraAbilitySystemComponent::GetStatusFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+    if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+    {
+        return GetStatusFromSpec(*Spec);
+    }
+    return FGameplayTag();
+}
+
+FGameplayTag UAuraAbilitySystemComponent::GetInputTagFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+    if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+    {
+        return GetInputTagFromSpec(*Spec);
+    }
+    return FGameplayTag();
+}
+
 FGameplayAbilitySpec* UAuraAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
 {
     // 아래 for 루프가 도는 동안 어빌리티에 변경사항이 적용되지 않도록 이 scpoe 동안에는 lock해둠.
@@ -205,6 +225,15 @@ void UAuraAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FG
 
 void UAuraAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGameplayTag& AbilityTag)
 {
+    // Check Spell Point
+    if (GetAvatarActor()->Implements<UPlayerInterface>())
+    {
+        if (IPlayerInterface::Execute_GetSpellPoints(GetAvatarActor()) < 1)
+        {
+            return;
+        }
+    }
+
     if (FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
     {
         const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
@@ -240,6 +269,92 @@ void UAuraAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGa
             IPlayerInterface::Execute_AddToSpellPoints(GetAvatarActor(), -1);
         }
     }
+}
+
+void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& Slot)
+{
+    if (FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag)) // Locked 어빌리티인 경우 nullptr
+    {
+        const FGameplayTag& PrevSlot = GetInputTagFromSpec(*AbilitySpec);
+        const FGameplayTag& Status = GetStatusFromSpec(*AbilitySpec);
+
+        FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
+        // Equipped or Unlocked 어빌리티인 경우 Valid
+        const bool bStatusValid = !Status.MatchesTagExact(GameplayTags.Abilities_Status_Eligible);
+        if (bStatusValid)
+        {
+            // Equip 위치인 InputTag(Slot) 태그를 가지고있는 어빌리티들에서 InputTag(Slot) 제거
+            ClearAbilitiesOfSlot(Slot);
+            // 이 어빌리티가 가지고있는 InputTag(Slot) 제거
+            ClearSlot(AbilitySpec);
+
+            // 이 어빌리티에 InputTag(Slot) 추가
+            AbilitySpec->DynamicAbilityTags.AddTag(Slot);
+            // ClearAbilitiesOfSlot 함수에서 이 어빌리티의 Status가 변경되었을수도 있음
+            const FGameplayTag& NewStatus = GetStatusFromSpec(*AbilitySpec);
+            if (NewStatus.MatchesTagExact(GameplayTags.Abilities_Status_Unlocked))
+            {
+                AbilitySpec->DynamicAbilityTags.RemoveTag(GameplayTags.Abilities_Status_Unlocked);
+                AbilitySpec->DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped);
+                // Unlocked와 Equipped는 UI에 똑같이 보이므로 보기에는 차이 없음.
+                ClientUpdateAbilityState(AbilityTag, GameplayTags.Abilities_Status_Equipped, 1);
+            }
+            MarkAbilitySpecDirty(*AbilitySpec);
+        }
+        ClientEquipAbility(AbilityTag, GameplayTags.Abilities_Status_Equipped, Slot, PrevSlot);
+    }
+}
+
+void UAuraAbilitySystemComponent::ClientEquipAbility_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot)
+{
+    AbilityEquipped.Broadcast(AbilityTag, Status, Slot, PreviousSlot);
+}
+
+void UAuraAbilitySystemComponent::ClearSlot(FGameplayAbilitySpec* Spec)
+{
+    const FGameplayTag& Slot = GetInputTagFromSpec(*Spec);
+    if (Slot.IsValid())
+    {
+        Spec->DynamicAbilityTags.RemoveTag(Slot);
+        FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
+        if (Spec->DynamicAbilityTags.HasAnyExact(FGameplayTagContainer(GameplayTags.Abilities_Status_Equipped)))
+        {
+            Spec->DynamicAbilityTags.RemoveTag(GameplayTags.Abilities_Status_Equipped);
+            Spec->DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Unlocked);
+            ClientUpdateAbilityState(GetAbilityTagFromSpec(*Spec), GameplayTags.Abilities_Status_Unlocked, 1);
+        }
+        // 어빌리티 Equip할때는 ClearSlot 함수가 여러번 사용되므로 바로바로 변경사항을 적용시켜야 꼬이지 않음.
+        MarkAbilitySpecDirty(*Spec);
+    }
+}
+
+void UAuraAbilitySystemComponent::ClearAbilitiesOfSlot(const FGameplayTag& Slot)
+{
+    FScopedAbilityListLock ActiveScopeLock(*this);
+
+    for (FGameplayAbilitySpec& Spec : GetActivatableAbilities())
+    {
+        if (AbilityHasSlot(&Spec, Slot))
+        {
+            ClearSlot(&Spec);
+        }
+    }
+}
+
+bool UAuraAbilitySystemComponent::AbilityHasSlot(FGameplayAbilitySpec* Spec, const FGameplayTag& Slot)
+{
+    return Spec->DynamicAbilityTags.HasAnyExact(FGameplayTagContainer(Slot));
+
+    // or
+
+    for (FGameplayTag Tag : Spec->DynamicAbilityTags)
+    {
+        if (Tag.MatchesTagExact(Slot))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool UAuraAbilitySystemComponent::GetDecriptionsByAbilityTag(const UAbilityInfo* AbilityInfo, const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription)
