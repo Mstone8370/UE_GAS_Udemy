@@ -62,6 +62,14 @@ public:
 
     TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
 
+    // Debuff
+    FGameplayTag Debuff_Burn;
+    FGameplayTag Debuff_Stun;
+    FGameplayTag Debuff_Arcane;
+    FGameplayTag Debuff_Physical;
+
+    TMap<FGameplayTag, FGameplayTag> DamageTypesToDebuffs;
+
     // Effects
     FGameplayTag Effects_HitReact;
 
@@ -81,7 +89,6 @@ public:
     FGameplayTag Abilities_Type_Offensive;
     FGameplayTag Abilities_Type_Passive;
     FGameplayTag Abilities_Type_None;
-
 
     // Cooldowns
     FGameplayTag Cooldown_Fire_FireBolt;
