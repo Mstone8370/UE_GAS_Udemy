@@ -46,36 +46,11 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
                 ProjectileClass,
                 SpawnTransform,
                 GetOwningActorFromActorInfo(),
-                Cast<APawn>(GetOwningActorFromActorInfo()),
+                Cast<APawn>(GetAvatarActorFromActorInfo()),
                 ESpawnActorCollisionHandlingMethod::AlwaysSpawn
             );
-        
-        const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
 
-        // Effect Context 설정
-        FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-        EffectContextHandle.SetAbility(this);
-        EffectContextHandle.AddSourceObject(Projectile);
-        EffectContextHandle.AddInstigator(GetAvatarActorFromActorInfo()->GetInstigator(), GetAvatarActorFromActorInfo());
-        TArray<TWeakObjectPtr<AActor>> Actors;
-        Actors.Add(Projectile);
-        EffectContextHandle.AddActors(Actors);
-        FHitResult HitResult;
-        HitResult.Location = ProjectileTargetLocation;
-        EffectContextHandle.AddHitResult(HitResult);
-        // Effect Context 설정 끝
-
-        // Damage 설정
-        const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
-        
-        const float ScaleDamage = DamageScalableFloat.GetValueAtLevel(GetAbilityLevel());
-
-        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType, ScaleDamage);
-        // or
-        // SpecHandle.Data->SetSetByCallerMagnitude(DamageType, ScaleDamage);
-
-        Projectile->DamageEffectSpecHandle = SpecHandle;
-        // Damage 설정 끝
+        Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefault();
         
         Projectile->FinishSpawning(SpawnTransform);
     }
