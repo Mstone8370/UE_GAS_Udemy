@@ -70,6 +70,11 @@ public:
 
     TMap<FGameplayTag, FGameplayTag> DamageTypesToDebuffs;
 
+    FGameplayTag Debuff_Param_Chance;
+    FGameplayTag Debuff_Param_Damage;
+    FGameplayTag Debuff_Param_Frequency;
+    FGameplayTag Debuff_Param_Duration;
+
     // Effects
     FGameplayTag Effects_HitReact;
 

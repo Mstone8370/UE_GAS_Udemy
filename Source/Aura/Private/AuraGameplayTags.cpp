@@ -191,6 +191,23 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
     GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Arcane, GameplayTags.Debuff_Arcane);
     GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Physical, GameplayTags.Debuff_Physical);
 
+    GameplayTags.Debuff_Param_Chance = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Debuff.Param.Chance"),
+        FString("Debuff Chance")
+    );
+    GameplayTags.Debuff_Param_Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Debuff.Param.Damage"),
+        FString("Debuff Damage")
+    );
+    GameplayTags.Debuff_Param_Frequency = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Debuff.Param.Frequency"),
+        FString("Debuff Frequency")
+    );
+    GameplayTags.Debuff_Param_Duration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Debuff.Param.Duration"),
+        FString("Debuff Duration")
+    );
+
     /**
      * Effects
      */
