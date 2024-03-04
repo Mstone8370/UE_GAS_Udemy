@@ -109,3 +109,5 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
     bOutSuccess = true;
     return true;
 }
+
+FDamageEffectParams::FDamageEffectParams() {}
