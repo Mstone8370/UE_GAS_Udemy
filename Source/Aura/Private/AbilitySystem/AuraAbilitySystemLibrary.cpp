@@ -227,6 +227,51 @@ void UAuraAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& E
     }
 }
 
+void UAuraAbilitySystemLibrary::SetIsSuccessfulDebuff(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsSuccessfulDebuff)
+{
+    FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(Context))
+    {
+        AuraContext->SetIsSuccessfulDebuff(bInIsSuccessfulDebuff);
+    }
+}
+
+void UAuraAbilitySystemLibrary::SetDebuffDamage(FGameplayEffectContextHandle& EffectContextHandle, const float InDebuffDamage)
+{
+    FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(Context))
+    {
+        AuraContext->SetDebuffDamage(InDebuffDamage);
+    }
+}
+
+void UAuraAbilitySystemLibrary::SetDebuffDuration(FGameplayEffectContextHandle& EffectContextHandle, const float InDebuffDuration)
+{
+    FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(Context))
+    {
+        AuraContext->SetDebuffDuration(InDebuffDuration);
+    }
+}
+
+void UAuraAbilitySystemLibrary::SetDebuffFrequency(FGameplayEffectContextHandle& EffectContextHandle, const float InDebuffFrequency)
+{
+    FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(Context))
+    {
+        AuraContext->SetDebuffFrequency(InDebuffFrequency);
+    }
+}
+
+void UAuraAbilitySystemLibrary::SetDamageType(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InDamageType)
+{
+    FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(Context))
+    {
+        AuraContext->SetDamageType(InDamageType);
+    }
+}
+
 void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& Origin)
 {
     // UGameplayStatics::ApplyRadialDamageWithFalloff Âü°í
