@@ -167,6 +167,8 @@ void AAuraCharacter::InitAbilityActorInfo()
     Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
     AttributeSet = AuraPlayerState->GetAttributeSet();
 
+    OnASCRegistered.Broadcast(AbilitySystemComponent);
+
     // 멀티플레이어인 경우 다른 플레이어의 Controller는 캐스팅에 실패함.
     if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
     {

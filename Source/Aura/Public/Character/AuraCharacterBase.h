@@ -14,6 +14,7 @@ class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
 class UNiagaraSystem;
+class UDebuffNiagaraComponent;
 
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -39,7 +40,12 @@ public:
 	virtual int32 GetMinionCount_Implementation() override;
 	virtual void IncrementMinionCount_Implementation(int32 Amount) override;
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
+	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
+	virtual FOnDeath GetOnDeathDelegate() override;
 	//~ End Combat Interface
+
+	FOnASCRegistered OnASCRegistered;
+	FOnDeath OnDeath;
 
 	// NetMulticast: 서버와 클라이언트에서 모두 실행되고, 모든 클라이언트에 레플리케이트 됨. _Implementation 함수 작성해야함.
 	UFUNCTION(NetMulticast, Reliable)
@@ -105,6 +111,12 @@ protected:
 	void StartDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
+
+	/**
+	 * Debuff Niagara Component
+	 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Abilities")

@@ -9,7 +9,7 @@
 #include "AuraGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 
 AAuraCharacterBase::AAuraCharacterBase()
     : bDead(false)
@@ -27,6 +27,10 @@ AAuraCharacterBase::AAuraCharacterBase()
     Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
     Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
     Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
+    BurnDebuffComponent->SetupAttachment(GetRootComponent());
+    BurnDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
 }
 
 void AAuraCharacterBase::BeginPlay()
@@ -116,6 +120,16 @@ ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation()
     return CharacterClass;
 }
 
+FOnASCRegistered AAuraCharacterBase::GetOnASCRegisteredDelegate()
+{
+    return OnASCRegistered;
+}
+
+FOnDeath AAuraCharacterBase::GetOnDeathDelegate()
+{
+    return OnDeath;
+}
+
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 {
     UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
@@ -130,10 +144,13 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation()
     GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    GetCapsuleComponent()->SetEnableGravity(false);
 
     Dissolve();
 
     bDead = true;
+    
+    OnDeath.Broadcast(this);
 }
 
 void AAuraCharacterBase::InitAbilityActorInfo() {}
