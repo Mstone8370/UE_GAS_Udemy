@@ -10,7 +10,6 @@
 #include "Player/AuraPlayerState.h"
 #include "UI/HUD/AuraHUD.h"
 #include "UI/WidgetController/AuraWidgetController.h"
-#include "AuraGameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
 bool UAuraAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AAuraHUD*& OutAuraHUD)
@@ -153,6 +152,59 @@ bool UAuraAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle
         return AuraContext->IsCriticalHit();
     }
     return false;
+}
+
+bool UAuraAbilitySystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+    const FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(Context))
+    {
+        return AuraContext->IsSuccessfulDebuff();
+    }
+    return false;
+}
+
+float UAuraAbilitySystemLibrary::GetDebuffDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+    const FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(Context))
+    {
+        return AuraContext->GetDebuffDamage();
+    }
+    return 0.f;
+}
+
+float UAuraAbilitySystemLibrary::GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+    const FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(Context))
+    {
+        return AuraContext->GetDebuffDuration();
+    }
+    return 0.f;
+}
+
+float UAuraAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+    const FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(Context))
+    {
+        return AuraContext->GetDebuffFrequency();
+    }
+    return 0.f;
+}
+
+FGameplayTag UAuraAbilitySystemLibrary::GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+    const FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(Context))
+    {
+        if (AuraContext->GetDamageType().IsValid())
+        {
+            return *AuraContext->GetDamageType();
+        }
+    }
+    return FGameplayTag();
 }
 
 void UAuraAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle,
