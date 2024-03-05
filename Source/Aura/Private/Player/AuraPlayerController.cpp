@@ -14,6 +14,7 @@
 #include "Components/SplineComponent.h"
 #include "GameFramework/Character.h"
 #include "UI/Widgets/DamageTextComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -183,6 +184,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
                     bAutoRunning = true;
                 }
             }
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
         }
     
         FollowTime = 0.f;

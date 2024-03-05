@@ -43,7 +43,10 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassD
         const FVector ToTargetDirection = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).GetSafeNormal();
         const FVector ImpulseAndForceDirection = (ToTargetDirection + TargetActor->GetActorUpVector()).GetSafeNormal();
         Params.DeathImpulse = ImpulseAndForceDirection * DeathImpulseMagnitude;
-        Params.KnockbackForce = ImpulseAndForceDirection * KnockbackForceMagnitude;
+        if (FMath::FRandRange(0.f, 100.f) <= Params.KnockbackChance)
+        {
+            Params.KnockbackForce = ImpulseAndForceDirection * KnockbackForceMagnitude;
+        }
     }
     
     return Params;

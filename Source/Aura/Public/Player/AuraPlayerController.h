@@ -15,6 +15,7 @@ class UInputAction;
 struct FInputActionValue;
 class IEnemyInterface;
 class UAuraAbilitySystemComponent;
+class UNiagaraSystem;
 
 /**
  * 
@@ -48,6 +49,9 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UAuraInputConfig> InputConfig;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UNiagaraSystem> ClickNiagaraSystem;
 
     UPROPERTY(EditDefaultsOnly)
     TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
