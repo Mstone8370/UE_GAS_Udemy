@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/Abilities/AuraSummonAbility.h"
 
-#include "Kismet/KismetSystemLibrary.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 
 TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
 {
@@ -14,15 +14,15 @@ TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
 
     const FVector Forward = GetAvatarActorFromActorInfo()->GetActorForwardVector();
     const FVector Location = GetAvatarActorFromActorInfo()->GetActorLocation();
-    const float DeltaSpread = SpawnSpread / NumMinions;
 
-    const FVector RightOfSpread = Forward.RotateAngleAxis(SpawnSpread / 2, FVector::UpVector);
-    const FVector LeftOfSpread = Forward.RotateAngleAxis(-SpawnSpread / 2, FVector::UpVector);
+    TArray<FVector> Directions;
+    UAuraAbilitySystemLibrary::GetEvenlyRotatedVectors(
+        Forward, SpawnSpread, NumMinions, FVector::UpVector, Directions
+    );
 
     TArray<FVector> SpawnLocations;
-    for (int32 i = 0; i < NumMinions; i++)
+    for (const FVector& Direction : Directions)
     {
-        const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
         FVector ChosenSpawnLocation = Location + Direction * FMath::FRandRange(MinSpawnDistance, MaxSpawnDistance);
 
         FHitResult Hit;
