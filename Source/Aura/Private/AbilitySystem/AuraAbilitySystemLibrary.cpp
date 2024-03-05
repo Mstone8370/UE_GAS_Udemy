@@ -359,6 +359,37 @@ FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(const 
     return ContextHandle;
 }
 
+void UAuraAbilitySystemLibrary::GetEvenlyRotatedVectors(const FVector& Forward, const float Spread, const int32 SpreadNum, const FVector& Axis, TArray<FVector>& OutVectors)
+{
+    OutVectors.Empty();
+
+    if (SpreadNum > 1)
+    {
+        float DeltaSpread = 0.f;
+        FVector SpreadStart = Forward;
+
+        const bool bIsCircleSpread = FMath::IsNearlyEqual(Spread, 360.f) || Spread >= 360.f;
+        if (bIsCircleSpread)
+        {
+            DeltaSpread = Spread / SpreadNum;
+        }
+        else
+        {
+            DeltaSpread = Spread / (SpreadNum - 1);
+            SpreadStart = SpreadStart.RotateAngleAxis(-Spread / 2.f, Axis);
+        }
+
+        for (int32 i = 0; i < SpreadNum; i++)
+        {
+            OutVectors.Add(SpreadStart.RotateAngleAxis(DeltaSpread * i, Axis));
+        }
+    }
+    else
+    {
+        OutVectors.Add(Forward);
+    }
+}
+
 int32 UAuraAbilitySystemLibrary::GetXPRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 CharacterLevel)
 {
     const UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
