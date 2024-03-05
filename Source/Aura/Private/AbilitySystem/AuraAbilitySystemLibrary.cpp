@@ -217,6 +217,16 @@ FVector UAuraAbilitySystemLibrary::GetDeathImpulse(const FGameplayEffectContextH
     return FVector::ZeroVector;
 }
 
+FVector UAuraAbilitySystemLibrary::GetKnockbackForce(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+    const FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(Context))
+    {
+        return AuraContext->GetKnockbackForce();
+    }
+    return FVector::ZeroVector;
+}
+
 void UAuraAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle,
     const bool bInIsBlockedHit)
 {
@@ -291,6 +301,15 @@ void UAuraAbilitySystemLibrary::SetDeathImpulse(FGameplayEffectContextHandle& Ef
     }
 }
 
+void UAuraAbilitySystemLibrary::SetKnockbackForce(FGameplayEffectContextHandle& EffectContextHandle, const FVector& InForce)
+{
+    FGameplayEffectContext* Context = EffectContextHandle.Get();
+    if (FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(Context))
+    {
+        AuraContext->SetKnockbackForce(InForce);
+    }
+}
+
 void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& Origin)
 {
     // UGameplayStatics::ApplyRadialDamageWithFalloff Âü°í
@@ -319,13 +338,14 @@ bool UAuraAbilitySystemLibrary::IsEnemy(AActor* FirstActor, AActor* SecondActor)
     return !(bBothArePlayer || bBothAreEnemy);
 }
 
-FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(FDamageEffectParams Params)
+FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(const FDamageEffectParams& Params)
 {
     const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
 
     FGameplayEffectContextHandle ContextHandle = Params.SourceAbilitySystemComponent->MakeEffectContext();
     ContextHandle.AddSourceObject(Params.SourceAbilitySystemComponent->GetAvatarActor());
     UAuraAbilitySystemLibrary::SetDeathImpulse(ContextHandle, Params.DeathImpulse);
+    UAuraAbilitySystemLibrary::SetKnockbackForce(ContextHandle, Params.KnockbackForce);
 
     FGameplayEffectSpecHandle SpecHandle = Params.SourceAbilitySystemComponent->MakeOutgoingSpec(Params.DamageGameplayEffectClass, Params.AbilityLevel, ContextHandle);
     UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Params.DamageType, Params.BaseDamage);

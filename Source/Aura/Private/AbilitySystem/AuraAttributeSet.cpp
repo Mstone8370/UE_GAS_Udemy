@@ -207,6 +207,12 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
             TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
             Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 
+            const FVector KnockbackForce = UAuraAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle);
+            if (!KnockbackForce.IsNearlyZero(1.f))
+            {
+                Props.TargetCharacter->LaunchCharacter(KnockbackForce, true, true);
+            }
+
             if (UAuraAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
             {
                 HandleDebuff(Props);
@@ -221,7 +227,7 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 
 void UAuraAttributeSet::HandleDebuff(const FEffectProperties& Props)
 {
-    // Gameplay Effect를 동적으로 생성해서 적용
+    // Gameplay Effect를 동적으로 생성해서 적용. 레플리케이트 되지 않음.
 
     const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
 
