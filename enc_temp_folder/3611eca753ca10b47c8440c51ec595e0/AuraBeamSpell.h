@@ -31,6 +31,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Beam")
 	TObjectPtr<APlayerController> OwnerPlayerController;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Beam")
+	UPROPERTY(BlueprintReadOnly, Category = "Beam");
 	TObjectPtr<ACharacter> OwnerPlayerCharacter;
 };

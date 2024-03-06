@@ -16,26 +16,26 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor);
 USTRUCT(BlueprintType)
 struct FTaggedMontage
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* Montage = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAnimMontage* Montage = nullptr;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    FGameplayTag MontageTag;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag MontageTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    FGameplayTag SocketTag;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag SocketTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    USoundBase* ImpactSound = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* ImpactSound = nullptr;
 };
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
 class UCombatInterface : public UInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 };
 
 /**
@@ -43,49 +43,52 @@ class UCombatInterface : public UInterface
  */
 class AURA_API ICombatInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    // Add interface functions to this class. This is the class that will be inherited to implement this interface.
+	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-    UFUNCTION(BlueprintNativeEvent)
-    int32 GetPlayerLevel();
+	UFUNCTION(BlueprintNativeEvent)
+	int32 GetPlayerLevel();
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);
 
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-    void UpdateFacingTarget(const FVector& Target);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateFacingTarget(const FVector& Target);
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    UAnimMontage* GetHitReactMontage();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetInShockLoop(const bool InLoop);
 
-    virtual void Die(const FVector& DeathImpulse) = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UAnimMontage* GetHitReactMontage();
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    bool IsDead() const;
+	virtual void Die(const FVector& DeathImpulse) = 0;
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    AActor* GetAvatar();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsDead() const;
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    TArray<FTaggedMontage> GetAttackMontage();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	AActor* GetAvatar();
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    UNiagaraSystem* GetBloodEffect();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	TArray<FTaggedMontage> GetAttackMontage();
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    FTaggedMontage GetTaggedMontageByTag(const FGameplayTag MontageTag);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UNiagaraSystem* GetBloodEffect();
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    int32 GetMinionCount();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FTaggedMontage GetTaggedMontageByTag(const FGameplayTag MontageTag);
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    void IncrementMinionCount(int32 Amount);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	int32 GetMinionCount();
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    ECharacterClass GetCharacterClass();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void IncrementMinionCount(int32 Amount);
 
-    virtual FOnASCRegistered& GetOnASCRegisteredDelegate() = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	ECharacterClass GetCharacterClass();
 
-    virtual FOnDeath& GetOnDeathDelegate() = 0;
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() = 0;
+
+	virtual FOnDeath& GetOnDeathDelegate() = 0;
 };
