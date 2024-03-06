@@ -12,6 +12,32 @@ class USphereComponent;
 class USoundBase;
 class UNiagaraSystem;
 
+USTRUCT()
+struct FHomingParam
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	bool bHoming = false;
+
+	UPROPERTY()
+	float HomingAcceleration = 0.f;
+
+	UPROPERTY()
+	bool bIsHomingToSceneComp = false;
+
+	UPROPERTY()
+	FVector HomingSceneCompLocation = FVector::ZeroVector;
+
+	UPROPERTY()
+	USceneComponent* HomingTarget = nullptr;
+
+	~FHomingParam()
+	{
+		HomingTarget = nullptr;
+	}
+};
+
 UCLASS()
 class AURA_API AAuraProjectile : public AActor
 {
@@ -19,12 +45,29 @@ class AURA_API AAuraProjectile : public AActor
 	
 public:	
 	AAuraProjectile();
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
+	//~ Begin Homing Field
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USceneComponent> HomingTargetSceneComponent;
+
+	UFUNCTION(Server, Reliable)
+	void ServerGetHomingTarget();
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_HomingParam)
+	FHomingParam HomingParam;
+
+	UFUNCTION()
+	void OnRep_HomingParam(FHomingParam OldHomingParam);
+
+	bool bIsHomingToSceneComp = false;
+
+	FVector HomingSceneCompLocation = FVector::ZeroVector;
+	//~ End Homing Field
 
 protected:
 	virtual void BeginPlay() override;

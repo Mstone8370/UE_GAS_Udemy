@@ -45,6 +45,32 @@ void UAuraAbilitySystemComponent::AddCharacterPassiveAbilities(const TArray<TSub
     }
 }
 
+void UAuraAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
+{
+    if (!InputTag.IsValid())
+    {
+        return;
+    }
+
+    for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+    {
+        bool bIsInputTagAbility = AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag);
+        bool bIsEquippedAbility = AbilitySpec.DynamicAbilityTags.HasTagExact(FAuraGameplayTags::Get().Abilities_Status_Equipped);
+        if (bIsInputTagAbility && bIsEquippedAbility)
+        {
+            AbilitySpecInputPressed(AbilitySpec); // Ability가 Input Pressed임을 알려주기기만 하는 목적?
+            if (AbilitySpec.IsActive())
+            {
+                InvokeReplicatedEvent(
+                    EAbilityGenericReplicatedEvent::InputPressed,
+                    AbilitySpec.Handle,
+                    AbilitySpec.ActivationInfo.GetActivationPredictionKey()
+                );
+            }
+        }
+    }
+}
+
 void UAuraAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
     if (!InputTag.IsValid())
@@ -76,9 +102,15 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 
     for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
     {
-        if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+        if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && AbilitySpec.IsActive())
         {
             AbilitySpecInputReleased(AbilitySpec); // Ability가 Input Released임을 알려주기기만 하는 목적?
+            
+            InvokeReplicatedEvent(
+                EAbilityGenericReplicatedEvent::InputReleased,
+                AbilitySpec.Handle,
+                AbilitySpec.ActivationInfo.GetActivationPredictionKey()
+            );
         }
     }
 }

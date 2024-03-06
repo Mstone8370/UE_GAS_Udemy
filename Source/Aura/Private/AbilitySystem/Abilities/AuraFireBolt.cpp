@@ -141,19 +141,24 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, co
 
         Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefault();
 
-        if (bIsHomingTargetValid)
+        if (bLaunchHomingProjectiles)
         {
-            Projectile->ProjectileMovement->HomingTargetComponent = HomingTarget->GetRootComponent();
+            if (bIsHomingTargetValid)
+            {
+                Projectile->ProjectileMovement->HomingTargetComponent = HomingTarget->GetRootComponent();
+            }
+            else
+            {
+                Projectile->HomingTargetSceneComponent = NewObject<USceneComponent>(Projectile);
+                Projectile->HomingTargetSceneComponent->RegisterComponent();
+                Projectile->HomingTargetSceneComponent->SetWorldLocation(ProjectileTargetLocation);
+                Projectile->ProjectileMovement->HomingTargetComponent = Projectile->HomingTargetSceneComponent;
+                Projectile->bIsHomingToSceneComp = true;
+                Projectile->HomingSceneCompLocation = ProjectileTargetLocation;
+            }
+            Projectile->ProjectileMovement->HomingAccelerationMagnitude = FMath::FRandRange(HomingAccelerationMin, HomingAccelerationMax);
+            Projectile->ProjectileMovement->bIsHomingProjectile = true;
         }
-        else
-        {
-            Projectile->HomingTargetSceneComponent = NewObject<USceneComponent>(Projectile);
-            Projectile->HomingTargetSceneComponent->RegisterComponent();
-            Projectile->HomingTargetSceneComponent->SetWorldLocation(ProjectileTargetLocation);
-            Projectile->ProjectileMovement->HomingTargetComponent = Projectile->HomingTargetSceneComponent;
-        }
-        Projectile->ProjectileMovement->HomingAccelerationMagnitude = FMath::FRandRange(HomingAccelerationMin, HomingAccelerationMax);
-        Projectile->ProjectileMovement->bIsHomingProjectile = bLaunchHomingProjectiles;
 
         Projectile->FinishSpawning(SpawnTransform);
     }

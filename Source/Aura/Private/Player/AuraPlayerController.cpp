@@ -152,6 +152,11 @@ void AAuraPlayerController::CursorTrace()
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
+    if (GetASC())
+    {
+        GetASC()->AbilityInputTagPressed(InputTag);
+    }
+
     if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
     {
         bTargeting = (ThisActor != nullptr);

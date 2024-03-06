@@ -13,6 +13,8 @@
 #include "Components/AudioComponent.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 
+#include "Net/UnrealNetwork.h"
+
 AAuraProjectile::AAuraProjectile()
 {
     PrimaryActorTick.bCanEverTick = false;
@@ -33,6 +35,43 @@ AAuraProjectile::AAuraProjectile()
     ProjectileMovement->ProjectileGravityScale = 0.f;
 }
 
+void AAuraProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AAuraProjectile, HomingParam);
+}
+
+void AAuraProjectile::ServerGetHomingTarget_Implementation()
+{
+    FHomingParam NewParam = FHomingParam();
+    NewParam.bHoming = ProjectileMovement->bIsHomingProjectile;
+    NewParam.HomingAcceleration = ProjectileMovement->HomingAccelerationMagnitude;
+    NewParam.bIsHomingToSceneComp = bIsHomingToSceneComp;
+    NewParam.HomingSceneCompLocation = HomingSceneCompLocation;
+    NewParam.HomingTarget = ProjectileMovement->HomingTargetComponent.Get();
+    HomingParam = NewParam;
+}
+
+void AAuraProjectile::OnRep_HomingParam(FHomingParam OldHomingParam)
+{
+    ProjectileMovement->bIsHomingProjectile = HomingParam.bHoming;
+    ProjectileMovement->HomingAccelerationMagnitude = HomingParam.HomingAcceleration;
+
+    if (HomingParam.bIsHomingToSceneComp)
+    {
+        ProjectileMovement->HomingTargetComponent = NewObject<USceneComponent>(this);
+        ProjectileMovement->HomingTargetComponent->RegisterComponent();
+        ProjectileMovement->HomingTargetComponent->SetWorldLocation(HomingParam.HomingSceneCompLocation);
+    }
+    else
+    {
+        ProjectileMovement->HomingTargetComponent = HomingParam.HomingTarget;
+    }
+
+    HomingParam = FHomingParam();
+}
+
 void AAuraProjectile::BeginPlay()
 {
     Super::BeginPlay();
@@ -42,10 +81,22 @@ void AAuraProjectile::BeginPlay()
     Sphere->OnComponentBeginOverlap.AddDynamic(this, &AAuraProjectile::OnSphereOverlap);
 
     LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
+
+    if (!HasAuthority())
+    {
+        ServerGetHomingTarget();
+    }
 }
 
 void AAuraProjectile::Destroyed()
 {
+    if (IsValid(LoopingSoundComponent))
+    {
+        LoopingSoundComponent->Stop();
+        LoopingSoundComponent->DestroyComponent();
+        LoopingSoundComponent = nullptr;
+    }
+
     if (!bHit && !HasAuthority())
     {
         // 클라이언트에서 오버랩 되기 전에 Destroy된 경우.
