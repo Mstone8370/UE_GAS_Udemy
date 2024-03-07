@@ -69,6 +69,14 @@ void UAuraBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
             }
         }
     }
+
+    if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(MouseHitActor))
+    {
+        if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &UAuraBeamSpell::PrimaryTargetDied))
+        {
+            CombatInterface->GetOnDeathDelegate().AddDynamic(this, &UAuraBeamSpell::PrimaryTargetDied);
+        }
+    }
 }
 
 void UAuraBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
@@ -101,4 +109,37 @@ void UAuraBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTarget
         OutAdditionalTargets,
         Origin
     );
+
+    for (AActor* Target : OutAdditionalTargets)
+    {
+        if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Target))
+        {
+            if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &UAuraBeamSpell::AdditionalTargetDied))
+            {
+                CombatInterface->GetOnDeathDelegate().AddDynamic(this, &UAuraBeamSpell::AdditionalTargetDied);
+            }
+        }
+    }
+}
+
+void UAuraBeamSpell::UnbindAllDelegate(TArray<AActor*>& AdditionalTargets)
+{
+    if (IsValid(MouseHitActor))
+    {
+        if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(MouseHitActor))
+        {
+            CombatInterface->GetOnDeathDelegate().RemoveAll(this);
+        }
+    }
+
+    for (AActor* Target : AdditionalTargets)
+    {
+        if (IsValid(Target))
+        {
+            if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Target))
+            {
+                CombatInterface->GetOnDeathDelegate().RemoveAll(this);
+            }
+        }
+    }
 }
