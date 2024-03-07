@@ -21,6 +21,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StoreOwnerVariables();
 
+	UFUNCTION(BlueprintCallable)
+	void TraceFirstTarget(const FVector& BeamTargetLocation);
+
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Beam")
 	FVector MouseHitLocation;
@@ -32,5 +35,5 @@ protected:
 	TObjectPtr<APlayerController> OwnerPlayerController;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Beam")
-	TObjectPtr<ACharacter> OwnerPlayerCharacter;
+	TObjectPtr<ACharacter> OwnerCharacter;
 };
