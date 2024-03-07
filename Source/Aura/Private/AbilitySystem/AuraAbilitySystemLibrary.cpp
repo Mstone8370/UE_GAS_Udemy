@@ -313,6 +313,9 @@ void UAuraAbilitySystemLibrary::SetKnockbackForce(FGameplayEffectContextHandle& 
 void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& Origin)
 {
     // UGameplayStatics::ApplyRadialDamageWithFalloff Âü°í
+
+    OutOverlappingActors.Empty();
+
     FCollisionQueryParams SphereParams;
     SphereParams.AddIgnoredActors(ActorsToIgnore);
 
@@ -324,10 +327,40 @@ void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 
     for (const FOverlapResult& Overlap : Overlaps)
     {
+        if (!IsValid(Overlap.GetActor()))
+        {
+            continue;
+        }
+
         if (Overlap.GetActor()->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsDead(Overlap.GetActor()))
         {
             OutOverlappingActors.AddUnique(Overlap.GetActor());
         }
+    }
+}
+
+void UAuraAbilitySystemLibrary::GetClosestTarget(int32 MaxTargets, const TArray<AActor*>& Actors, TArray<AActor*>& OutClosestTargets, const FVector& Origin)
+{
+    TArray<AActor*> ActorsCopy(Actors);
+    ActorsCopy.Sort(
+        [Origin](const AActor& A, const AActor& B)
+        {
+            const FVector DeltaA = A.GetActorLocation() - Origin;
+            const FVector DeltaB = B.GetActorLocation() - Origin;
+            const float PowDistA = (DeltaA.X * DeltaA.X) + (DeltaA.Y * DeltaA.Y) + (DeltaA.Z * DeltaA.Z);
+            const float PowDistB = (DeltaB.X * DeltaB.X) + (DeltaB.Y * DeltaB.Y) + (DeltaB.Z * DeltaB.Z);
+            return PowDistA < PowDistB;
+        }
+    );
+
+    for (AActor*& Actor : ActorsCopy)
+    {
+        if (OutClosestTargets.Num() >= MaxTargets)
+        {
+            break;
+        }
+
+        OutClosestTargets.AddUnique(Actor);
     }
 }
 
