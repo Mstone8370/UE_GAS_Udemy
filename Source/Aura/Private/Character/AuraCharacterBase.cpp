@@ -33,6 +33,10 @@ AAuraCharacterBase::AAuraCharacterBase()
     BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
     BurnDebuffComponent->SetupAttachment(GetRootComponent());
     BurnDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
+
+    StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("StunDebuffComponent");
+    StunDebuffComponent->SetupAttachment(GetRootComponent());
+    StunDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Stun;
 }
 
 void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -185,6 +189,8 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(const FVector& Deat
 }
 
 void AAuraCharacterBase::OnRep_IsStunned(bool bOldIsStunned) {}
+
+void AAuraCharacterBase::OnRep_IsBurned(bool bOldIsStunned) {}
 
 void AAuraCharacterBase::InitAbilityActorInfo() {}
 

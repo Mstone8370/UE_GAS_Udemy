@@ -68,9 +68,14 @@ protected:
 	float BaseWalkSpeed;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IsStunned)
 	bool bIsStunned = false;
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IsBurned)
+	bool bIsBurned = false;
 
 	UFUNCTION()
 	virtual void OnRep_IsStunned(bool bOldIsStunned);
+
+	UFUNCTION()
+	virtual void OnRep_IsBurned(bool bOldIsBurned);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	ECharacterClass CharacterClass;
@@ -132,6 +137,9 @@ protected:
 	 */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> StunDebuffComponent;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Abilities")

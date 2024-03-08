@@ -49,6 +49,8 @@ public:
 protected:
 	virtual void OnRep_IsStunned(bool bOldIsStunned) override;
 
+	virtual void OnRep_IsBurned(bool bOldIsStunned) override;
+
 private:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_LevelUpParticles();

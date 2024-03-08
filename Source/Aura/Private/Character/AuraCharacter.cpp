@@ -14,6 +14,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -182,10 +183,36 @@ void AAuraCharacter::OnRep_IsStunned(bool bOldIsStunned)
     if (bIsStunned)
     {
         AbilitySystemComponent->AddLooseGameplayTags(BlockedTags);
+        if (StunDebuffComponent)
+        {
+            StunDebuffComponent->Activate();
+        }
     }
     else
     {
         AbilitySystemComponent->RemoveLooseGameplayTags(BlockedTags);
+        if (StunDebuffComponent)
+        {
+            StunDebuffComponent->Deactivate();
+        }
+    }
+}
+
+void AAuraCharacter::OnRep_IsBurned(bool bOldIsStunned)
+{
+    if (bIsBurned)
+    {
+        if (BurnDebuffComponent)
+        {
+            BurnDebuffComponent->Activate();
+        }
+    }
+    else
+    {
+        if (BurnDebuffComponent)
+        {
+            BurnDebuffComponent->Deactivate();
+        }
     }
 }
 

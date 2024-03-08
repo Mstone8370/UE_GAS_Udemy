@@ -233,7 +233,7 @@ void UExecCalc_Damage::DetermineDebuff(const FGameplayEffectCustomExecutionParam
         }
 
         // Determine if there was a successful debuff
-        const float SourceDebuffChance = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Param_Chance);
+        const float SourceDebuffChance = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Param_Chance, false, -1.f);
 
         float TargetDebuffResistance = 0.f;
         const FGameplayTag& ResistanceTag = GameplayTags.DamageTypesToResistances[DamageType];
