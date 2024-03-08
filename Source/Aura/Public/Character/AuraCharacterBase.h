@@ -32,6 +32,8 @@ protected:
 public:
 	//~ Begin Combat Interface
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
+	virtual bool IsBeingShocked_Implementation() const override;
+	virtual void SetIsBeingShocked_Implementation(const bool InIsBeingShocked) override;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	virtual void Die(const FVector& DeathImpulse) override;
 	virtual bool IsDead_Implementation() const override;
@@ -70,6 +72,8 @@ protected:
 	bool bIsStunned = false;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IsBurned)
 	bool bIsBurned = false;
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool bIsBeingShocked = false;
 
 	UFUNCTION()
 	virtual void OnRep_IsStunned(bool bOldIsStunned);
@@ -150,6 +154,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage_Shock;
 
 public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;

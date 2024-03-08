@@ -44,6 +44,8 @@ void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AAuraCharacterBase, bIsStunned);
+    DOREPLIFETIME(AAuraCharacterBase, bIsBurned);
+    DOREPLIFETIME(AAuraCharacterBase, bIsBeingShocked);
 }
 
 void AAuraCharacterBase::BeginPlay()
@@ -76,8 +78,22 @@ FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGamepl
     return FVector::ZeroVector;
 }
 
+bool AAuraCharacterBase::IsBeingShocked_Implementation() const
+{
+    return bIsBeingShocked;
+}
+
+void AAuraCharacterBase::SetIsBeingShocked_Implementation(const bool InIsBeingShocked)
+{
+    bIsBeingShocked = InIsBeingShocked;
+}
+
 UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
 {
+    if (bIsBeingShocked)
+    {
+        return HitReactMontage_Shock;
+    }
     return HitReactMontage;
 }
 
