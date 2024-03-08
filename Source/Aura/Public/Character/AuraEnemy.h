@@ -50,11 +50,10 @@ public:
     FOnAttributeChangedSignature OnMaxHealthChanged;
     
     void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+    virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
 
     UPROPERTY(BlueprintReadOnly, Category = "Combat")
     bool bHitReacting;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
-    float BaseWalkSpeed;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
     float LifeSpan;
 

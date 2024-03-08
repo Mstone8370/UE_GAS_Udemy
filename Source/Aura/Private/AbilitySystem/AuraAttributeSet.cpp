@@ -247,7 +247,16 @@ void UAuraAttributeSet::HandleDebuff(const FEffectProperties& Props)
     // 태그 컨테이너를 Combine할때 사용되는 InheritedTageContainer 생성
     FInheritedTagContainer InheritedTagContainer = FInheritedTagContainer();
     // 추가될 태그 컨테이너에 추가할 태그 추가.
-    InheritedTagContainer.Added.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+    const FGameplayTag DebuffTag = GameplayTags.DamageTypesToDebuffs[DamageType];
+    InheritedTagContainer.Added.AddTag(DebuffTag);
+    if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun))
+    {
+        // on Server. 클라이언트의 태그는 AAuraCharacter::OnRep_IsStunned 에서 관리함.
+        InheritedTagContainer.Added.AddTag(GameplayTags.Player_Block_InputPressed);
+        InheritedTagContainer.Added.AddTag(GameplayTags.Player_Block_InputReleased);
+        InheritedTagContainer.Added.AddTag(GameplayTags.Player_Block_InputHeld);
+        InheritedTagContainer.Added.AddTag(GameplayTags.Player_Block_CursorTrace);
+    }
     // GameplayEffect의 GrantingTag를 관리하는 UTargetTagsGameplayEffectComponent를 가져오거나 없으면 생성.
     UTargetTagsGameplayEffectComponent& TargetTagComponent = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
     // UTargetTagsGameplayEffectComponent에 InheritedTageContainer의 정보대로 태그 컨테이너 변경사항 적용.

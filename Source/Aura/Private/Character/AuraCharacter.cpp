@@ -13,6 +13,7 @@
 #include "NiagaraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "AuraGameplayTags.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -39,6 +40,8 @@ AAuraCharacter::AAuraCharacter()
     bUseControllerRotationYaw = false;
 
     CharacterClass = ECharacterClass::Elementalist;
+
+    BaseWalkSpeed = 600.f;
 }
 
 void AAuraCharacter::PossessedBy(AController* NewController)
@@ -46,6 +49,10 @@ void AAuraCharacter::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     // Init ability actor info for the Server
+    if (!OnASCRegistered.IsBoundToObject(this))
+    {
+        OnASCRegistered.AddUObject(this, &AAuraCharacter::OnAbilitySystemComponentRegistered);
+    }
     InitAbilityActorInfo();
     AddCharacterAbilities();
 }
@@ -55,6 +62,10 @@ void AAuraCharacter::OnRep_PlayerState()
     Super::OnRep_PlayerState();
 
     // Init ability actor info for the Client
+    if (!OnASCRegistered.IsBoundToObject(this))
+    {
+        OnASCRegistered.AddUObject(this, &AAuraCharacter::OnAbilitySystemComponentRegistered);
+    }
     InitAbilityActorInfo();
 }
 
@@ -158,6 +169,26 @@ void AAuraCharacter::Multicast_LevelUpParticles_Implementation()
     }
 }
 
+void AAuraCharacter::OnRep_IsStunned(bool bOldIsStunned)
+{
+    const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
+
+    FGameplayTagContainer BlockedTags;
+    BlockedTags.AddTag(GameplayTags.Player_Block_InputPressed);
+    BlockedTags.AddTag(GameplayTags.Player_Block_InputReleased);
+    BlockedTags.AddTag(GameplayTags.Player_Block_InputHeld);
+    BlockedTags.AddTag(GameplayTags.Player_Block_CursorTrace);
+
+    if (bIsStunned)
+    {
+        AbilitySystemComponent->AddLooseGameplayTags(BlockedTags);
+    }
+    else
+    {
+        AbilitySystemComponent->RemoveLooseGameplayTags(BlockedTags);
+    }
+}
+
 void AAuraCharacter::InitAbilityActorInfo()
 {
     AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -168,6 +199,7 @@ void AAuraCharacter::InitAbilityActorInfo()
     AttributeSet = AuraPlayerState->GetAttributeSet();
 
     OnASCRegistered.Broadcast(AbilitySystemComponent);
+    // AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraCharacterBase::StunTagChanged);
 
     // 멀티플레이어인 경우 다른 플레이어의 Controller는 캐스팅에 실패함.
     if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))

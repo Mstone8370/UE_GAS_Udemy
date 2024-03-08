@@ -10,6 +10,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AAuraCharacterBase::AAuraCharacterBase()
     : bDead(false)
@@ -33,10 +35,18 @@ AAuraCharacterBase::AAuraCharacterBase()
     BurnDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
 }
 
+void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AAuraCharacterBase, bIsStunned);
+}
+
 void AAuraCharacterBase::BeginPlay()
 {
     Super::BeginPlay();
     
+    OnASCRegistered.AddUObject(this, &AAuraCharacterBase::OnAbilitySystemComponentRegistered);
 }
 
 FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
@@ -135,6 +145,19 @@ USkeletalMeshComponent* AAuraCharacterBase::GetWeapon_Implementation()
     return Weapon;
 }
 
+void AAuraCharacterBase::OnAbilitySystemComponentRegistered(UAbilitySystemComponent* ASC)
+{
+    ASC->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(
+        this, &AAuraCharacterBase::StunTagChanged
+    );
+}
+
+void AAuraCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+    bIsStunned = NewCount > 0;
+    GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;
+}
+
 void AAuraCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
     UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
@@ -160,6 +183,8 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(const FVector& Deat
     
     OnDeath.Broadcast(this);
 }
+
+void AAuraCharacterBase::OnRep_IsStunned(bool bOldIsStunned) {}
 
 void AAuraCharacterBase::InitAbilityActorInfo() {}
 

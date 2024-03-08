@@ -17,7 +17,6 @@
 
 AAuraEnemy::AAuraEnemy()
     : bHitReacting(false)
-    , BaseWalkSpeed(250.f)
     , LifeSpan(5.f)
     , Level(1)
 {
@@ -47,6 +46,8 @@ AAuraEnemy::AAuraEnemy()
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->bUseControllerDesiredRotation = true;
     GetCharacterMovement()->bOrientRotationToMovement = true;
+
+    BaseWalkSpeed = 250.f;
 }
 
 void AAuraEnemy::BeginPlay()
@@ -185,5 +186,15 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
     if (HasAuthority())
     {
         AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("bHitReacting"), bHitReacting);
+    }
+}
+
+void AAuraEnemy::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+    Super::StunTagChanged(CallbackTag, NewCount);
+
+    if (HasAuthority())
+    {
+        AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("bIsStunned"), bIsStunned);
     }
 }

@@ -24,6 +24,8 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 public:
 	AAuraCharacterBase();
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -48,15 +50,27 @@ public:
 	FOnASCRegistered OnASCRegistered;
 	FOnDeath OnDeath;
 
+	virtual void OnAbilitySystemComponentRegistered(UAbilitySystemComponent* ASC);
+
 	// NetMulticast: 서버와 클라이언트에서 모두 실행되고, 모든 클라이언트에 레플리케이트 됨. _Implementation 함수 작성해야함.
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TArray<FTaggedMontage> AttackMontages;
+
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 	
 protected:
 	bool bDead;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float BaseWalkSpeed;
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IsStunned)
+	bool bIsStunned = false;
+
+	UFUNCTION()
+	virtual void OnRep_IsStunned(bool bOldIsStunned);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	ECharacterClass CharacterClass;

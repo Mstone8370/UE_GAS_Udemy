@@ -46,6 +46,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
 
+protected:
+	virtual void OnRep_IsStunned(bool bOldIsStunned) override;
+
 private:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_LevelUpParticles();
