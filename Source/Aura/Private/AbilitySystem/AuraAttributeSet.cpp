@@ -203,19 +203,40 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
         }
         else
         {
+            bool bShouldCancelOffensiveAbilities = false;
+            bool bShouldKnockbacked = false;
+
+            // Hit React
             FGameplayTagContainer TagContainer;
             TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
             Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 
+            // Knockback
             const FVector KnockbackForce = UAuraAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle);
             if (!KnockbackForce.IsNearlyZero(1.f))
             {
-                Props.TargetCharacter->LaunchCharacter(KnockbackForce, true, true);
+                bShouldKnockbacked = true;
+                bShouldCancelOffensiveAbilities = true;
             }
 
+            // Debuff
             if (UAuraAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
             {
                 HandleDebuff(Props);
+                bShouldCancelOffensiveAbilities = true;
+            }
+
+            // Offensive Ability Cancel
+            if (bShouldCancelOffensiveAbilities)
+            {
+                FGameplayTagContainer CancelTags;
+                CancelTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Abilities")));
+                Props.TargetASC->CancelAbilities(&CancelTags);
+            }
+            if (bShouldKnockbacked)
+            {
+                // 넉백은 어빌리티를 취소한 다음에 적용해야함
+                Props.TargetCharacter->LaunchCharacter(KnockbackForce, true, true);
             }
         }
 
