@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
+#include "AbilitySystem/Passive/PassiveNiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -30,6 +31,7 @@ AAuraCharacterBase::AAuraCharacterBase()
     Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
     Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+    // Debuff Niagara Component
     BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
     BurnDebuffComponent->SetupAttachment(GetRootComponent());
     BurnDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
@@ -37,6 +39,24 @@ AAuraCharacterBase::AAuraCharacterBase()
     StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("StunDebuffComponent");
     StunDebuffComponent->SetupAttachment(GetRootComponent());
     StunDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Stun;
+
+    // Passive Niagara Component
+    EffectAttachComponent = CreateDefaultSubobject<USceneComponent>("EffectAttachComponent");
+    EffectAttachComponent->SetupAttachment(GetRootComponent());
+    EffectAttachComponent->SetUsingAbsoluteRotation(true);
+    EffectAttachComponent->SetWorldRotation(FRotator::ZeroRotator);
+
+    HaloOfProtectionNiagaraComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("HaloOfProtectionNiagaraComponent");
+    HaloOfProtectionNiagaraComponent->SetupAttachment(EffectAttachComponent);
+    HaloOfProtectionNiagaraComponent->PassiveSpellTag = FAuraGameplayTags::Get().Abilities_Passive_HaloOfProtection;
+
+    LifeSiphonNiagaraComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("LifeSiphonNiagaraComponent");
+    LifeSiphonNiagaraComponent->SetupAttachment(EffectAttachComponent);
+    LifeSiphonNiagaraComponent->PassiveSpellTag = FAuraGameplayTags::Get().Abilities_Passive_LifeSiphon;
+
+    ManaSiphonComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("ManaSiphonComponent");
+    ManaSiphonComponent->SetupAttachment(EffectAttachComponent);
+    ManaSiphonComponent->PassiveSpellTag = FAuraGameplayTags::Get().Abilities_Passive_ManaSiphon;
 }
 
 void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

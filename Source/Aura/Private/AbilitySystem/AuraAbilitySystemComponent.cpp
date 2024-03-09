@@ -326,7 +326,7 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
             // Equip 위치인 InputTag(Slot) 태그를 가지고있는 어빌리티들에서 InputTag(Slot) 제거
             ClearAbilitiesOfSlot(Slot, bIsPassiveAbility);
             // 이 어빌리티가 가지고있는 InputTag(Slot) 제거
-            ClearSlot(AbilitySpec, bIsPassiveAbility);
+            ClearSlot(AbilitySpec);
 
             // 이 어빌리티에 InputTag(Slot) 추가
             AbilitySpec->DynamicAbilityTags.AddTag(Slot);
@@ -344,6 +344,7 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
             if (bIsPassiveAbility)
             {
                 TryActivateAbilitiesByTag(AbilityTag.GetSingleTagContainer());
+                MulticastActivatePassiveEffect(AbilityTag, true);
             }
 
             MarkAbilitySpecDirty(*AbilitySpec);
@@ -355,6 +356,11 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 void UAuraAbilitySystemComponent::ClientEquipAbility_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot)
 {
     AbilityEquipped.Broadcast(AbilityTag, Status, Slot, PreviousSlot);
+}
+
+void UAuraAbilitySystemComponent::MulticastActivatePassiveEffect_Implementation(const FGameplayTag& AbilityTag, bool bActivate)
+{
+    ActivatePassiveEffect.Broadcast(AbilityTag, bActivate);
 }
 
 void UAuraAbilitySystemComponent::ClearSlot(FGameplayAbilitySpec* Spec, bool InIsPassiveAbility)
@@ -371,7 +377,9 @@ void UAuraAbilitySystemComponent::ClearSlot(FGameplayAbilitySpec* Spec, bool InI
 
             if (InIsPassiveAbility)
             {
-                DeactivatePassiveAbility.Broadcast(GetAbilityTagFromSpec(*Spec));
+                const FGameplayTag& PassiveAbilityTag = GetAbilityTagFromSpec(*Spec);
+                DeactivatePassiveAbility.Broadcast(PassiveAbilityTag);
+                MulticastActivatePassiveEffect(PassiveAbilityTag, false);
             }
 
             ClientUpdateAbilityState(GetAbilityTagFromSpec(*Spec), GameplayTags.Abilities_Status_Unlocked, 1);
