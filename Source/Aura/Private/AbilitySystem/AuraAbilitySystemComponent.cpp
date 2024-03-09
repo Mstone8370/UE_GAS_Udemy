@@ -52,6 +52,8 @@ void UAuraAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Inp
         return;
     }
 
+    FScopedAbilityListLock ActiveScopeLock(*this);
+
     for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
     {
         bool bIsInputTagAbility = AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag);
@@ -78,6 +80,8 @@ void UAuraAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
         return;
     }
 
+    FScopedAbilityListLock ActiveScopeLock(*this);
+
     for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
     {
         bool bIsInputTagAbility = AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag);
@@ -99,6 +103,8 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
     {
         return;
     }
+
+    FScopedAbilityListLock ActiveScopeLock(*this);
 
     for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
     {
@@ -315,10 +321,12 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
         const bool bStatusValid = !Status.MatchesTagExact(GameplayTags.Abilities_Status_Eligible);
         if (bStatusValid)
         {
+            bool bIsPassiveAbility = AbilityTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities.Passive")));
+
             // Equip 위치인 InputTag(Slot) 태그를 가지고있는 어빌리티들에서 InputTag(Slot) 제거
-            ClearAbilitiesOfSlot(Slot);
+            ClearAbilitiesOfSlot(Slot, bIsPassiveAbility);
             // 이 어빌리티가 가지고있는 InputTag(Slot) 제거
-            ClearSlot(AbilitySpec);
+            ClearSlot(AbilitySpec, bIsPassiveAbility);
 
             // 이 어빌리티에 InputTag(Slot) 추가
             AbilitySpec->DynamicAbilityTags.AddTag(Slot);
@@ -329,8 +337,15 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
                 AbilitySpec->DynamicAbilityTags.RemoveTag(GameplayTags.Abilities_Status_Unlocked);
                 AbilitySpec->DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped);
                 // Unlocked와 Equipped는 UI에 똑같이 보이므로 보기에는 차이 없음.
-                ClientUpdateAbilityState(AbilityTag, GameplayTags.Abilities_Status_Equipped, 1);
+                ClientUpdateAbilityState(AbilityTag, GameplayTags.Abilities_Status_Equipped, AbilitySpec->Level);
             }
+
+            // 패시브면 활성화
+            if (bIsPassiveAbility)
+            {
+                TryActivateAbilitiesByTag(AbilityTag.GetSingleTagContainer());
+            }
+
             MarkAbilitySpecDirty(*AbilitySpec);
         }
         ClientEquipAbility(AbilityTag, GameplayTags.Abilities_Status_Equipped, Slot, PrevSlot);
@@ -342,7 +357,7 @@ void UAuraAbilitySystemComponent::ClientEquipAbility_Implementation(const FGamep
     AbilityEquipped.Broadcast(AbilityTag, Status, Slot, PreviousSlot);
 }
 
-void UAuraAbilitySystemComponent::ClearSlot(FGameplayAbilitySpec* Spec)
+void UAuraAbilitySystemComponent::ClearSlot(FGameplayAbilitySpec* Spec, bool InIsPassiveAbility)
 {
     const FGameplayTag& Slot = GetInputTagFromSpec(*Spec);
     if (Slot.IsValid())
@@ -353,6 +368,12 @@ void UAuraAbilitySystemComponent::ClearSlot(FGameplayAbilitySpec* Spec)
         {
             Spec->DynamicAbilityTags.RemoveTag(GameplayTags.Abilities_Status_Equipped);
             Spec->DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Unlocked);
+
+            if (InIsPassiveAbility)
+            {
+                DeactivatePassiveAbility.Broadcast(GetAbilityTagFromSpec(*Spec));
+            }
+
             ClientUpdateAbilityState(GetAbilityTagFromSpec(*Spec), GameplayTags.Abilities_Status_Unlocked, 1);
         }
         // 어빌리티 Equip할때는 ClearSlot 함수가 여러번 사용되므로 바로바로 변경사항을 적용시켜야 꼬이지 않음.
@@ -360,7 +381,7 @@ void UAuraAbilitySystemComponent::ClearSlot(FGameplayAbilitySpec* Spec)
     }
 }
 
-void UAuraAbilitySystemComponent::ClearAbilitiesOfSlot(const FGameplayTag& Slot)
+void UAuraAbilitySystemComponent::ClearAbilitiesOfSlot(const FGameplayTag& Slot, bool InIsPassiveAbility)
 {
     FScopedAbilityListLock ActiveScopeLock(*this);
 
@@ -368,12 +389,12 @@ void UAuraAbilitySystemComponent::ClearAbilitiesOfSlot(const FGameplayTag& Slot)
     {
         if (AbilityHasSlot(&Spec, Slot))
         {
-            ClearSlot(&Spec);
+            ClearSlot(&Spec, InIsPassiveAbility);
         }
     }
 }
 
-bool UAuraAbilitySystemComponent::AbilityHasSlot(FGameplayAbilitySpec* Spec, const FGameplayTag& Slot)
+bool UAuraAbilitySystemComponent::AbilityHasSlot(const FGameplayAbilitySpec* Spec, const FGameplayTag& Slot)
 {
     return Spec->DynamicAbilityTags.HasAnyExact(FGameplayTagContainer(Slot));
 

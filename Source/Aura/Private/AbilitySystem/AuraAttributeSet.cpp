@@ -317,15 +317,14 @@ void UAuraAttributeSet::HandleIncomingXP(const FEffectProperties& Props)
         const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
 
         const int32 NewLevel = IPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
-        const int32 NumOfLevelUps = NewLevel - CurrentLevel;
-        if (NumOfLevelUps > 0)
-        {
-            int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
-            int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
+        const int32 DeltaLevel = NewLevel - CurrentLevel;
 
-            IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumOfLevelUps);
-            IPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
-            IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
+        int32 AttributePointsReward = 0;
+        int32 SpellPointsReward = 0;
+        for (int32 i = 0; i < DeltaLevel; i++)
+        {
+            AttributePointsReward += IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, i);
+            SpellPointsReward += IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, i);
 
             // MMC에서 최대 체력과 최대 마나를 늘린 다음에 채워야 하므로 여기에선 일단 상태 표시만 함.
             bTopOffHealth = true;
@@ -334,6 +333,9 @@ void UAuraAttributeSet::HandleIncomingXP(const FEffectProperties& Props)
             IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
         }
 
+        IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, DeltaLevel);
+        IPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
+        IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
         IPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
     }
 }

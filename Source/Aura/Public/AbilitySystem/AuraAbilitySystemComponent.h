@@ -68,10 +68,10 @@ public:
 	void ClientEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot);
 
 	// 어빌리티의 InputTag 제거
-	void ClearSlot(FGameplayAbilitySpec* Spec);
+	void ClearSlot(FGameplayAbilitySpec* Spec, bool InIsPassiveAbility);
 	// 일치하는 InputTag를 가진 어빌리티의 InputTag 제거
-	void ClearAbilitiesOfSlot(const FGameplayTag& Slot);
-	bool AbilityHasSlot(FGameplayAbilitySpec* Spec, const FGameplayTag& Slot);
+	void ClearAbilitiesOfSlot(const FGameplayTag& Slot, bool InIsPassiveAbility);
+	bool AbilityHasSlot(const FGameplayAbilitySpec* Spec, const FGameplayTag& Slot);
 
 	bool GetDecriptionsByAbilityTag(const UAbilityInfo* AbilityInfo, const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription);
 
