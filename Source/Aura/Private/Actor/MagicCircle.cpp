@@ -25,3 +25,11 @@ void AMagicCircle::Tick(float DeltaTime)
 
 }
 
+void AMagicCircle::SetMaterial(UMaterialInterface* InMaterial)
+{
+	if (MagicCircleDecal)
+	{
+		MagicCircleDecal->SetMaterial(0, InMaterial);
+	}
+}
+

@@ -21,6 +21,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SetMaterial(UMaterialInterface* InMaterial);
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDecalComponent> MagicCircleDecal;
