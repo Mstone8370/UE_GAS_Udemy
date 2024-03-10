@@ -81,6 +81,7 @@ void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
             MagicCircle->SetMaterial(DecalMaterial);
         }
     }
+    bShowMouseCursor = false;
 }
 
 void AAuraPlayerController::HideMagicCircle()
@@ -89,6 +90,7 @@ void AAuraPlayerController::HideMagicCircle()
     {
         MagicCircle->Destroy();
     }
+    bShowMouseCursor = true;
 }
 
 void AAuraPlayerController::ShowDamageNumber_Implementation(const float DamageAmount, ACharacter* TargetCharacter, const bool bBlockedHit, const bool bCriticalHit)
