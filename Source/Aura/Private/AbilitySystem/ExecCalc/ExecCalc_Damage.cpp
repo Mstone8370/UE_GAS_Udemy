@@ -10,6 +10,7 @@
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 struct AuraDamageStatics
 {
@@ -151,7 +152,44 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
         ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDef, EvaluationParameters, Resistance);
         Resistance = FMath::Clamp(Resistance, 0.f, 100.f);
         
-        const float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
+        float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
+
+        if (UAuraAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
+        {
+            /**
+             * 범위 데미지는 거리가 멀어짐에 따라 데미지가 감소함.
+             * 거리에 따른 데미지 감소는 언리얼에서 계산해주는 함수가 있으니 그걸 이용함.
+             * 그러기 위해서 아래의 과정을 거침.
+             * 
+             * 1. 액터의 TakeDamage 함수를 override해서 Super::TakeDamage를 통해 감소된 데미지 값을 받음.
+             * 2. OnDamageSignature라는 델리게이트를 생성해서 TakeDamage 함수에서 감소된 데미지 값을 Broadcast 함.
+             * 3. OnDamageSignature 델리게이트에 Lambda 함수 연결.
+             * 4. 델리게이트에 함수를 연결한 뒤에 UGameplayStatics::ApplyRadialDamageWithFalloff 함수 호출.
+             * 5. Lambda 함수에서 감소된 데미지 값을 받아서 기존의 데미지값을 변경.
+             */
+            if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetAvatar))
+            {
+                CombatInterface->GetOnDamageDelegate().AddLambda(
+                    [&](float DamageAmount)
+                    {
+                        DamageTypeValue = DamageAmount;
+                    }
+                );
+            }
+            UGameplayStatics::ApplyRadialDamageWithFalloff(
+                TargetAvatar,
+                DamageTypeValue,
+                0.f,
+                UAuraAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle),
+                UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle),
+                UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle),
+                1.f,
+                UDamageType::StaticClass(),
+                TArray<AActor*>(),
+                SourceAvatar
+            );
+        }
+
         Damage += DamageTypeValue * (100.f - Resistance) / 100.f;
     }
     
