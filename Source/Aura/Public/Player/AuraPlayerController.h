@@ -71,6 +71,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<AMagicCircle> MagicCircle;
+
+	bool bMagicCircleEnabled = false;
 	
 	FHitResult CursorHit;
 	

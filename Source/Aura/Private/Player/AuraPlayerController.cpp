@@ -16,6 +16,8 @@
 #include "UI/Widgets/DamageTextComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Actor/MagicCircle.h"
+#include "Kismet/GameplayStatics.h"
+#include "Aura/Aura.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -82,6 +84,7 @@ void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
         }
     }
     bShowMouseCursor = false;
+    bMagicCircleEnabled = true;
 }
 
 void AAuraPlayerController::HideMagicCircle()
@@ -91,6 +94,7 @@ void AAuraPlayerController::HideMagicCircle()
         MagicCircle->Destroy();
     }
     bShowMouseCursor = true;
+    bMagicCircleEnabled = false;
 }
 
 void AAuraPlayerController::ShowDamageNumber_Implementation(const float DamageAmount, ACharacter* TargetCharacter, const bool bBlockedHit, const bool bCriticalHit)
@@ -173,7 +177,9 @@ void AAuraPlayerController::CursorTrace()
         return;
     }
 
-    GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, CursorHit);
+    ECollisionChannel TraceChannel = bMagicCircleEnabled ? ECC_ExcludePlayers : ECC_Visibility;
+    GetHitResultUnderCursor(TraceChannel, false, CursorHit);
+
     if (!CursorHit.bBlockingHit || !IsValid(CursorHit.GetActor()))
     {
         return;

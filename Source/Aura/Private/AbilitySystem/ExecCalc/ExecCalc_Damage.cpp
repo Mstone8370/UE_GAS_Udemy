@@ -11,6 +11,7 @@
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Aura/Aura.h"
 
 struct AuraDamageStatics
 {
@@ -153,6 +154,10 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
         Resistance = FMath::Clamp(Resistance, 0.f, 100.f);
         
         float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
+        if (FMath::IsNearlyZero(DamageTypeValue) || DamageTypeValue <= 0.f)
+        {
+            continue;
+        }
 
         if (UAuraAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
         {
@@ -179,7 +184,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
             UGameplayStatics::ApplyRadialDamageWithFalloff(
                 TargetAvatar,
                 DamageTypeValue,
-                0.f,
+                1.f,
                 UAuraAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle),
                 UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle),
                 UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle),

@@ -20,7 +20,7 @@ void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
     }
 }
 
-FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassDefault(AActor* TargetActor) const
+FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassDefault(AActor* TargetActor, bool bImpulseAndForceDirectionOverride, FVector ImpulseAndForceDirection) const
 {
     FDamageEffectParams Params;
     Params.WorldContextObject = GetAvatarActorFromActorInfo();
@@ -40,7 +40,15 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 
     if (IsValid(TargetActor))
     {
-        const FVector ToTargetDirection = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).GetSafeNormal();
+        FVector ToTargetDirection;
+        if (bImpulseAndForceDirectionOverride)
+        {
+            ToTargetDirection = ImpulseAndForceDirection;
+        }
+        else
+        {
+            ToTargetDirection = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).GetSafeNormal();
+        }
         const FVector ImpulseAndForceDirection = (ToTargetDirection + TargetActor->GetActorUpVector()).GetSafeNormal();
         Params.DeathImpulse = ImpulseAndForceDirection * DeathImpulseMagnitude;
         if (FMath::FRandRange(0.f, 100.f) <= Params.KnockbackChance)

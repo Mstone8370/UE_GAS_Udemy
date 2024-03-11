@@ -101,8 +101,7 @@ void UAuraBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTarget
         Origin
     );
 
-    // int32 NumAdditionalTargets = FMath::Min(MaxNumShockTargets, GetAbilityLevel() - 1);
-    int32 NumAdditionalTargets = 5;
+    int32 NumAdditionalTargets = FMath::Min(MaxNumShockTargets, GetAbilityLevel() - 1);
     UAuraAbilitySystemLibrary::GetClosestTarget(
         NumAdditionalTargets,
         OverlappingActors,
