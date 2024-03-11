@@ -50,4 +50,13 @@ protected:
 	float KnockbackForceMagnitude = 300.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float KnockbackChance = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	bool bRadialDamage = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	float RadialDamageInnerRadius = 0.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	float RadialDamageOuterRadius = 0.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	FVector RadialDamageOrigin = FVector::ZeroVector;
 };

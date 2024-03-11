@@ -60,7 +60,7 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
         }
         if (DamageType.IsValid())
         {
-            RepBits |= 1 << 13;
+           RepBits |= 1 << 13;
         }
         if (!DeathImpulse.IsZero())
         {
@@ -70,9 +70,13 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
         {
             RepBits |= 1 << 15;
         }
+        if (bIsRadialDamage)
+        {
+            RepBits |= 1 << 16;
+        }
     }
 
-    Ar.SerializeBits(&RepBits, 16);
+    Ar.SerializeBits(&RepBits, 17);
 
     if (RepBits & (1 << 0))
     {
@@ -159,6 +163,13 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
     if (RepBits & (1 << 15))
     {
         KnockbackForce.NetSerialize(Ar, Map, bOutSuccess);
+    }
+    if (RepBits & (1 << 16))
+    {
+        bIsRadialDamage = true;
+        Ar << RadialDamageInnerRadius;
+        Ar << RadialDamageOuterRadius;
+        RadialDamageOrigin.NetSerialize(Ar, Map, bOutSuccess);
     }
 
     if (Ar.IsLoading())
