@@ -186,64 +186,66 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 {
     const float LocalIncomingDamage = GetIncomingDamage();
     SetIncomingDamage(0.f);
-    if (LocalIncomingDamage > 0.f)
+    if (LocalIncomingDamage <= 0.f)
     {
-        const float NewHealth = GetHealth() - LocalIncomingDamage;
-        SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-
-        const bool bFatal = (NewHealth <= 0.f);
-        if (bFatal)
-        {
-            if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
-            {
-                const FVector DeathImpulse = UAuraAbilitySystemLibrary::GetDeathImpulse(Props.EffectContextHandle);
-                CombatInterface->Die(DeathImpulse);
-            }
-            SendXPEvent(Props);
-        }
-        else
-        {
-            bool bShouldCancelOffensiveAbilities = false;
-            bool bShouldKnockbacked = false;
-
-            // Hit React
-            FGameplayTagContainer TagContainer;
-            TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
-            Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
-
-            // Knockback
-            const FVector KnockbackForce = UAuraAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle);
-            if (!KnockbackForce.IsNearlyZero(1.f))
-            {
-                bShouldKnockbacked = true;
-                bShouldCancelOffensiveAbilities = true;
-            }
-
-            // Debuff
-            if (UAuraAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
-            {
-                HandleDebuff(Props);
-                bShouldCancelOffensiveAbilities = true;
-            }
-
-            // Offensive Ability Cancel
-            if (bShouldCancelOffensiveAbilities)
-            {
-                FGameplayTagContainer CancelTags;
-                CancelTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Abilities")));
-                Props.TargetASC->CancelAbilities(&CancelTags);
-            }
-            if (bShouldKnockbacked)
-            {
-                // 넉백은 어빌리티를 취소한 다음에 적용해야함
-                Props.TargetCharacter->LaunchCharacter(KnockbackForce, true, true);
-            }
-        }
-
-        const bool bBlock = UAuraAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
-        const bool bCritical = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
-        ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCritical);
+        return;
     }
+
+    const float NewHealth = GetHealth() - LocalIncomingDamage;
+    SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+    const bool bFatal = (NewHealth <= 0.f);
+    if (bFatal)
+    {
+        if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
+        {
+            const FVector DeathImpulse = UAuraAbilitySystemLibrary::GetDeathImpulse(Props.EffectContextHandle);
+            CombatInterface->Die(DeathImpulse);
+        }
+        SendXPEvent(Props);
+    }
+    else
+    {
+        bool bShouldCancelOffensiveAbilities = false;
+        bool bShouldKnockbacked = false;
+
+        // Hit React
+        FGameplayTagContainer TagContainer;
+        TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
+        Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+
+        // Knockback
+        const FVector KnockbackForce = UAuraAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle);
+        if (!KnockbackForce.IsNearlyZero(1.f))
+        {
+            bShouldKnockbacked = true;
+            bShouldCancelOffensiveAbilities = true;
+        }
+
+        // Debuff
+        if (UAuraAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
+        {
+            HandleDebuff(Props);
+            bShouldCancelOffensiveAbilities = true;
+        }
+
+        // Offensive Ability Cancel
+        if (bShouldCancelOffensiveAbilities)
+        {
+            FGameplayTagContainer CancelTags;
+            CancelTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Abilities")));
+            Props.TargetASC->CancelAbilities(&CancelTags);
+        }
+        if (bShouldKnockbacked)
+        {
+            // 넉백은 어빌리티를 취소한 다음에 적용해야함
+            Props.TargetCharacter->LaunchCharacter(KnockbackForce, true, true);
+        }
+    }
+
+    const bool bBlock = UAuraAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
+    const bool bCritical = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+    ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCritical);
 }
 
 void UAuraAttributeSet::HandleDebuff(const FEffectProperties& Props)
