@@ -131,11 +131,14 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, co
         SpawnTransform.SetLocation(SocketLocation);
         SpawnTransform.SetRotation(Direction.Rotation().Quaternion());
 
+        APawn* Instigator = Cast<APawn>(GetAvatarActorFromActorInfo());
+        AController* Owner = Instigator->GetController();
+
         AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(
             ProjectileClass,
             SpawnTransform,
-            GetOwningActorFromActorInfo(),
-            Cast<APawn>(GetAvatarActorFromActorInfo()),
+            Owner,
+            Instigator,
             ESpawnActorCollisionHandlingMethod::AlwaysSpawn
         );
 

@@ -42,10 +42,10 @@ void AAuraProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AAuraProjectile, HomingParam);
 }
 
-void AAuraProjectile::ServerGetHomingTarget_Implementation()
+void AAuraProjectile::MulticastUpdateHomingTarget_Implementation()
 {
     FHomingParam NewParam = FHomingParam();
-    NewParam.bHoming = ProjectileMovement->bIsHomingProjectile;
+    NewParam.bIsHoming = ProjectileMovement->bIsHomingProjectile;
     NewParam.HomingAcceleration = ProjectileMovement->HomingAccelerationMagnitude;
     NewParam.bIsHomingToSceneComp = bIsHomingToSceneComp;
     NewParam.HomingSceneCompLocation = HomingSceneCompLocation;
@@ -55,7 +55,7 @@ void AAuraProjectile::ServerGetHomingTarget_Implementation()
 
 void AAuraProjectile::OnRep_HomingParam(FHomingParam OldHomingParam)
 {
-    ProjectileMovement->bIsHomingProjectile = HomingParam.bHoming;
+    ProjectileMovement->bIsHomingProjectile = HomingParam.bIsHoming;
     ProjectileMovement->HomingAccelerationMagnitude = HomingParam.HomingAcceleration;
 
     if (HomingParam.bIsHomingToSceneComp)
@@ -82,9 +82,9 @@ void AAuraProjectile::BeginPlay()
 
     LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
 
-    if (!HasAuthority())
+    if (HasAuthority())
     {
-        ServerGetHomingTarget();
+        MulticastUpdateHomingTarget();
     }
 }
 
@@ -101,6 +101,16 @@ void AAuraProjectile::Destroyed()
     {
         // 클라이언트에서 오버랩 되기 전에 Destroy된 경우.
         OnHit();
+    }
+
+    if (HomingParam.bIsHoming && HomingParam.bIsHomingToSceneComp && HomingParam.HomingTarget.IsValid())
+    {
+        if (IsValid(HomingParam.HomingTarget.Get()))
+        {
+            HomingParam.HomingTarget->DestroyComponent();
+            HomingParam.HomingTarget.Reset();
+            ProjectileMovement->HomingTargetComponent.Reset();
+        }
     }
     
     Super::Destroyed();
@@ -156,3 +166,42 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
     }
 }
 
+bool FHomingParam::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
+{
+    uint8 RepBits = 0;
+
+    if (Ar.IsSaving())
+    {
+        if (bIsHoming)
+        {
+            RepBits |= 1 << 0;
+
+            if (bIsHomingToSceneComp)
+            {
+                RepBits |= 1 << 1;
+            }
+        }
+    }
+
+    Ar.SerializeBits(&RepBits, 2);
+
+    if (RepBits & (1 << 0))
+    {
+        bIsHoming = true;
+
+        Ar << HomingAcceleration;
+
+        if (RepBits & (1 << 1))
+        {
+            bIsHomingToSceneComp = true;
+
+            HomingSceneCompLocation.NetSerialize(Ar, Map, bOutSuccess);
+        }
+        else
+        {
+            Ar << HomingTarget;
+        }
+    }
+
+    return true;
+}

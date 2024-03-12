@@ -17,8 +17,10 @@ struct FHomingParam
 {
 	GENERATED_BODY()
 
+	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+
 	UPROPERTY()
-	bool bHoming = false;
+	bool bIsHoming = false;
 
 	UPROPERTY()
 	float HomingAcceleration = 0.f;
@@ -27,15 +29,28 @@ struct FHomingParam
 	bool bIsHomingToSceneComp = false;
 
 	UPROPERTY()
-	FVector HomingSceneCompLocation = FVector::ZeroVector;
+	FVector_NetQuantize HomingSceneCompLocation;
 
-	UPROPERTY()
-	USceneComponent* HomingTarget = nullptr;
+	TWeakObjectPtr<USceneComponent> HomingTarget = nullptr;
 
 	~FHomingParam()
 	{
-		HomingTarget = nullptr;
+		// HomingTarget = nullptr;
+		if (HomingTarget.IsValid())
+		{
+			HomingTarget.Reset();
+		}
 	}
+};
+
+template<>
+struct TStructOpsTypeTraits<FHomingParam> : public TStructOpsTypeTraitsBase2<FHomingParam>
+{
+	enum
+	{
+		WithNetSerializer = true,
+		WithCopy = true
+	};
 };
 
 UCLASS()
@@ -55,8 +70,8 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USceneComponent> HomingTargetSceneComponent;
 
-	UFUNCTION(Server, Reliable)
-	void ServerGetHomingTarget();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastUpdateHomingTarget();
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_HomingParam)
 	FHomingParam HomingParam;

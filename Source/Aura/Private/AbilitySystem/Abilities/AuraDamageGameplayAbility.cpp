@@ -49,11 +49,11 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassD
         {
             ToTargetDirection = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).GetSafeNormal();
         }
-        const FVector ImpulseAndForceDirection = (ToTargetDirection + TargetActor->GetActorUpVector()).GetSafeNormal();
-        Params.DeathImpulse = ImpulseAndForceDirection * DeathImpulseMagnitude;
+        const FVector FinalImpulseAndForceDirection = (ToTargetDirection + TargetActor->GetActorUpVector()).GetSafeNormal();
+        Params.DeathImpulse = FinalImpulseAndForceDirection * DeathImpulseMagnitude;
         if (FMath::FRandRange(0.f, 100.f) <= Params.KnockbackChance)
         {
-            Params.KnockbackForce = ImpulseAndForceDirection * KnockbackForceMagnitude;
+            Params.KnockbackForce = FinalImpulseAndForceDirection * KnockbackForceMagnitude;
         }
     }
 
